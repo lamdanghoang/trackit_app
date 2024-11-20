@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import Chart from "./CustomChart";
 
 export default function Token() {
   return (
@@ -20,8 +21,8 @@ export default function Token() {
       {/* Main Content */}
       <div className="grid md:grid-cols-[1fr_300px] flex-1 gap-4">
         {/* Chart Area */}
-        <div className="p-4 bg-panel rounded-lg">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-panel rounded-lg">
+          {/* <div className="flex items-center justify-between mb-4">
             <Tabs defaultValue="15m">
               <TabsList>
                 <TabsTrigger value="1m">1m</TabsTrigger>
@@ -38,17 +39,18 @@ export default function Token() {
                 UTC
               </Button>
             </div>
-          </div>
+          </div> */}
 
           {/* Placeholder for Chart */}
-          <div className="h-[400px] bg-card rounded-lg border flex items-center justify-center">
+          {/* <div className="h-[400px] bg-card rounded-lg border flex items-center justify-center">
             Chart Visualization Would Go Here
-          </div>
+          </div> */}
+          <Chart />
         </div>
 
         {/* Right Sidebar */}
         <div className="p-4 bg-panel rounded-lg">
-          <Card className="p-4 mb-4">
+          <Card className="p-4 mb-4 bg-items text-white border-itemborder">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Image

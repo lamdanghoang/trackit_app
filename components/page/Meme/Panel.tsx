@@ -13,7 +13,7 @@ const Panel: React.FC<PanelProps> = ({ children, title, height }) => {
   return (
     <section className="pb-1 rounded-lg shadow-md relative bg-panel">
       <div className="flex justify-between items-center">
-        <h3 className="z-0 sticky top-0 py-2 px-4 flex items-center text-xl font-semibold text-bluesky backdrop-blur-sm rounded-t-lg">
+        <h3 className="z-0 top-0 py-2 px-4 flex items-center text-xl font-semibold text-bluesky backdrop-blur-sm rounded-t-lg">
           {title}
         </h3>
         <Button variant="ghost" size="sm">

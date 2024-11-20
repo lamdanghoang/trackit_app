@@ -24,7 +24,7 @@ function formatVotes(votes: number): string {
 
 const Governance: React.FC<Props> = ({ info }) => {
   return (
-    <div className="p-4 block rounded-lg transition-colors duration-300 mt-2 ml-1 mr-2 bg-item hover:bg-gray-700 text-gray-50 border-bordercolor border">
+    <div className="p-4 block rounded-lg transition-colors duration-300 mt-2 ml-1 mr-2 bg-item hover:bg-gray-700 text-gray-50 border-itemborder border">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium">Proposal {info.proposal_id}</span>
         <span className="text-xs text-gray-400">
