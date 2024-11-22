@@ -24,8 +24,8 @@ const TOOLTIP_CONFIG = {
       GREEN: "rgb(38, 166, 154)",
       RED: "rgb(239, 83, 80)",
     },
-    UP: "rgba(38, 166, 154, 0.5)",
-    DOWN: "rgba(239, 83, 80, 0.5)",
+    UP: "rgba(38, 166, 154, 0.3)",
+    DOWN: "rgba(239, 83, 80, 0.3)",
     GREEN: "rgb(38, 166, 154)",
     RED: "rgb(239, 83, 80)",
   },
@@ -50,10 +50,10 @@ const chartOptions: DeepPartial<ChartOptions> = {
   },
   grid: {
     vertLines: {
-      color: "rgba(197, 203, 206, 0.2)",
+      color: "rgba(197, 203, 206, 0.1)",
     },
     horzLines: {
-      color: "rgba(197, 203, 206, 0.2)",
+      color: "rgba(197, 203, 206, 0.1)",
     },
   },
 };

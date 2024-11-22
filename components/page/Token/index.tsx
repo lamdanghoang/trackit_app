@@ -131,6 +131,13 @@ export default function Token() {
               </div>
             </div>
           </Card>
+          <Image
+            src={"/banner.png"}
+            alt="banner"
+            width="500"
+            height="500"
+            className="w-full"
+          ></Image>
         </div>
       </div>
 
