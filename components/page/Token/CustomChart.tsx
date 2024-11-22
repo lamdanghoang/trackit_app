@@ -251,7 +251,7 @@ export default function Chart(): JSX.Element {
   }, []);
 
   return (
-    <div className="w-full h-full p-4 rounded-lg shadow-md">
+    <div className="w-full h-[500px] p-4 rounded-lg shadow-md">
       <div ref={chartContainerRef} className="w-full h-full relative" />
     </div>
   );

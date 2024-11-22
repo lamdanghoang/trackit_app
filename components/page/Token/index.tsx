@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +13,16 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import Chart from "./CustomChart";
+import { useContext, useEffect } from "react";
+import GlobalContext from "@/context/store";
+import TxHistory from "./TxHistory";
 
 export default function Token() {
+  const { selectedToken } = useContext(GlobalContext);
+  console.log(selectedToken);
+
   return (
-    <div className="flex flex-col w-full min-h-screen text-foreground p-3">
+    <div className="flex flex-col w-full text-foreground p-3 gap-4">
       {/* Main Content */}
       <div className="grid md:grid-cols-[1fr_300px] flex-1 gap-4">
         {/* Chart Area */}
@@ -54,16 +59,16 @@ export default function Token() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/placeholder.svg?height=32&width=32"
-                  alt="Token"
-                  width={32}
-                  height={32}
+                  src={selectedToken?.image || ""}
+                  alt={selectedToken?.name || ""}
+                  width={40}
+                  height={40}
                   className="rounded-full"
                 />
                 <div>
-                  <h3 className="font-bold">Cellana</h3>
+                  <h3 className="font-bold">{selectedToken?.tickerSymbol}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Cellana Finance
+                    {selectedToken?.name}
                   </p>
                 </div>
               </div>
@@ -126,44 +131,45 @@ export default function Token() {
               </div>
             </div>
           </Card>
-
-          {/* Recent Transactions */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-sm text-muted-foreground">
-                  <th className="text-left py-2">Type</th>
-                  <th className="text-right py-2">Price</th>
-                  <th className="text-right py-2">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-2">
-                    <span className="text-red-500">Sell</span>
-                  </td>
-                  <td className="text-right">0.03650</td>
-                  <td className="text-right">4.11</td>
-                </tr>
-                <tr>
-                  <td className="py-2">
-                    <span className="text-green-500">Buy</span>
-                  </td>
-                  <td className="text-right">0.03609</td>
-                  <td className="text-right">0.8104</td>
-                </tr>
-                <tr>
-                  <td className="py-2">
-                    <span className="text-red-500">Sell</span>
-                  </td>
-                  <td className="text-right">0.03604</td>
-                  <td className="text-right">13.562</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
+
+      {/* Recent Transactions */}
+      {/* <div className="overflow-x-auto bg-panel rounded-lg">
+        <table className="w-full">
+          <thead>
+            <tr className="text-sm text-muted-foreground">
+              <th className="text-left py-2">Type</th>
+              <th className="text-right py-2">Price</th>
+              <th className="text-right py-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="py-2">
+                <span className="text-red-500">Sell</span>
+              </td>
+              <td className="text-right">0.03650</td>
+              <td className="text-right">4.11</td>
+            </tr>
+            <tr>
+              <td className="py-2">
+                <span className="text-green-500">Buy</span>
+              </td>
+              <td className="text-right">0.03609</td>
+              <td className="text-right">0.8104</td>
+            </tr>
+            <tr>
+              <td className="py-2">
+                <span className="text-red-500">Sell</span>
+              </td>
+              <td className="text-right">0.03604</td>
+              <td className="text-right">13.562</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> */}
+      <TxHistory />
     </div>
   );
 }

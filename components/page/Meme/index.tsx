@@ -1,8 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { FilterIcon } from "lucide-react";
+"use client";
 import Panel from "./Panel";
 import List, { renderList } from "../List";
 import Item from "./Item";
+import { useEffect, useState } from "react";
+import { TokenInfo } from "@/types/interface";
+import axios from "axios";
 
 const cryptoData = [
   {
@@ -107,17 +109,43 @@ const cryptoData = [
 ];
 
 export default function Page() {
+  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTokenInfoList = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `https://trackit-be.vercel.app/v1/token/info`
+        );
+        console.log(response);
+        if (response.status === 200) {
+          const data: TokenInfo[] = response.data;
+          setTokenInfoList(data);
+        }
+      } catch (err) {
+        setError("Failed to fetch governance data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTokenInfoList();
+  }, []);
+
   return (
     <div className="grow p-3">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="col-span-3 md:col-span-2 lg:col-span-1 hidden lg:block">
-          <Panel title={"New Pool"} height="h-[445px]">
-            <List list={renderList(cryptoData, Item)} />
+        <div className="col-span-3 md:col-span-2 lg:col-span-1 lg:block">
+          <Panel title={"Token"} height="h-[445px]">
+            <List list={renderList(tokenInfoList, Item)} />
           </Panel>
         </div>
-        <Panel title={"Burnt"} height={"445px"} />
+        <Panel title={"Burnt"} height={"445px"}></Panel>
 
-        <Panel title={"DEXScreener Spent"} height={"445px"} />
+        <Panel title={"DEXScreener Spent"} height={"445px"}></Panel>
       </div>
     </div>
   );

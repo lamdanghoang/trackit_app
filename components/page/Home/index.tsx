@@ -127,7 +127,7 @@ export default function HomePage() {
   return (
     <main className="p-3 grow">
       <div className="max-w-[2400px] mx-auto grid gap-4 grid-cols-8 lg:grid-cols-12">
-        <div className="col-span-2 lg:col-span-3 hidden lg:block">
+        <div className="col-span-8 lg:col-span-3 lg:block">
           <Panel title="Token Sentiment" height="h-[445px]">
             {isLoading ? (
               <div className="flex items-center justify-center h-full text-gray-50">

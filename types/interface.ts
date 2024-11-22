@@ -28,3 +28,48 @@ export interface TokenIndicatorInfo {
   signal: string;
   description: string;
 }
+
+export interface TokenInfo {
+  id: string;
+  name: string;
+  tickerSymbol: string;
+  desc: string;
+  creator: string;
+  mintAddr: string;
+  image: string;
+  twitter: string | null;
+  telegram: string | null;
+  website: string | null;
+  status: string;
+  cdate: string;
+  creatorName: string;
+  creatorWalletAddr: string;
+  creatorAvatar: string | null;
+  replies: number;
+  marketCapUSD: number;
+  trades: TradeInfo[];
+  aptosUSDPrice: number;
+  holderPercentage: string;
+  bondinCurvepercentage: number;
+  seeded: string | null;
+}
+
+export interface TradeInfo {
+  side: string;
+  count: string;
+  volume: string;
+}
+
+export interface TxnInfo {
+  tokenMint: string;
+  txnHash: string;
+  side: string;
+  username: string;
+  userWalletAddr: string;
+  userAvatar: string | null;
+  xAmt: string;
+  yAmt: string;
+  gas: null;
+  timestamp: string;
+  status: string;
+}
