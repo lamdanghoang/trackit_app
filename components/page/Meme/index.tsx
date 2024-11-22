@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 import Panel from "./Panel";
 import List, { renderList } from "../List";

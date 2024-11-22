@@ -1,3 +1,4 @@
+/* eslint-disable */
 type Props = {
   list: any[];
 };

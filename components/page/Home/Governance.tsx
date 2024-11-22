@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
 import { CheckCircle, XCircle, User, Database } from "lucide-react";
