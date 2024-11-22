@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client";
 import {
   GovernanceInfo,
@@ -57,7 +56,7 @@ export default function HomePage() {
       try {
         const response = await axios.get(`${API_URL}/api/apt-gov`);
         const formattedData: GovernanceInfo[] = response.data.map(
-          (item: any) => ({
+          (item: GovernanceInfo) => ({
             proposal_id: item.proposal_id,
             num_votes: item.num_votes,
             should_pass: item.should_pass,
@@ -80,7 +79,7 @@ export default function HomePage() {
         const response = await axios.get(`${API_URL}/api/token-sentiment`);
         console.log("Token sentiment: ", response.data);
         const formattedData: TokenSentimentInfo[] = response.data.map(
-          (item: any) => ({
+          (item: TokenSentimentInfo) => ({
             name: item.name,
             price: item.price,
             change_24h: item.change_24h,
@@ -101,7 +100,7 @@ export default function HomePage() {
       try {
         const response = await axios.get(`${API_URL}/api/token-indicator`);
         const formattedData: TokenIndicatorInfo[] = response.data.map(
-          (item: any) => ({
+          (item: TokenIndicatorInfo) => ({
             name: item.name,
             symbol: item.symbol,
             price: item.price,

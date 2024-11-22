@@ -1,11 +1,10 @@
-/* eslint-disable */
 import { format } from "date-fns";
 
 type Props = {
   info: {
     name: string;
     price: number;
-    change_24h: any;
+    change_24h: number;
     transaction_timestamp: number;
     sentiment: string;
     description: string;

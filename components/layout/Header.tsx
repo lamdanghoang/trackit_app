@@ -1,7 +1,6 @@
-/* eslint-disable */
 "use client";
 
-import { useContext, useState } from "react";
+import { FormEvent, useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +29,7 @@ export default function Header() {
     console.log(input);
   };
 
-  const submitHandler = (e: any) => {
+  const submitHandler = (e: FormEvent) => {
     e.preventDefault();
     console.log(input);
     setLoadingFullScreen(true);

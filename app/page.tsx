@@ -1,5 +1,5 @@
-import HomePage from "@/components/page/Home";
+import Meme from "@/components/page/Meme";
 
 export default function Page() {
-  return <HomePage />;
+  return <Meme />;
 }

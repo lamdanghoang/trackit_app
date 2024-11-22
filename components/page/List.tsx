@@ -1,4 +1,3 @@
-/* eslint-disable */
 type Props = {
   list: any[];
 };
@@ -19,5 +18,5 @@ export const renderList = (
   items: any[],
   Component: React.ComponentType<{ info: any }>
 ) => {
-  return items.map((item) => <Component info={item} />);
+  return items.map((item, index) => <Component key={index} info={item} />);
 };

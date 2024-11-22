@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 type PanelProps = {

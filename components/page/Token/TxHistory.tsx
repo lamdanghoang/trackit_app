@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -112,7 +111,7 @@ export default function TxHistory() {
     };
 
     fetchTokenInfoList();
-  }, []);
+  }, [params.id]);
 
   return (
     <div className="container mx-auto text-gray-100 rounded-lg">

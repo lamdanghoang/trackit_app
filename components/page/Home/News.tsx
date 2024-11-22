@@ -1,4 +1,3 @@
-/* eslint-disable */
 type Props = {
   info: {
     author: string;

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Image from "next/image";
 import {
   Card,
