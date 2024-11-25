@@ -17,6 +17,15 @@ import { useContext, useEffect } from "react";
 import GlobalContext from "@/context/store";
 import TxHistory from "./TxHistory";
 
+const formatVolume = (volume: number): string => {
+  if (volume >= 1000000) {
+    return `${(volume / 1000000).toFixed(2)}M`;
+  } else if (volume >= 1000) {
+    return `${(volume / 1000).toFixed(2)}K`;
+  }
+  return volume.toFixed(2).toString();
+};
+
 export default function Token() {
   const { selectedToken } = useContext(GlobalContext);
   console.log(selectedToken);
@@ -80,7 +89,9 @@ export default function Token() {
             <div className="grid gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">PRICE USD</div>
-                <div className="text-xl font-bold">$0.03650</div>
+                <div className="text-xl font-bold">
+                  ${selectedToken?.aptosUSDPrice.toFixed(2)}
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
@@ -94,7 +105,12 @@ export default function Token() {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">MKT CAP</div>
-                  <div className="font-bold">$12.0M</div>
+                  <div className="font-bold">
+                    $
+                    {formatVolume(
+                      selectedToken ? +selectedToken?.marketCapUSD : 0
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -120,13 +136,35 @@ export default function Token() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-muted-foreground">BUYS</div>
-                  <div className="font-bold">261</div>
-                  <div className="text-sm text-green-500">$34K</div>
+                  <div className="font-bold">
+                    {selectedToken?.trades[0]
+                      ? selectedToken?.trades[0].count
+                      : 0}
+                  </div>
+                  <div className="text-sm text-green-500">
+                    $
+                    {formatVolume(
+                      selectedToken?.trades[0]
+                        ? +selectedToken?.trades[0].volume
+                        : 0
+                    )}
+                  </div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">SELLS</div>
-                  <div className="font-bold">291</div>
-                  <div className="text-sm text-red-500">$44K</div>
+                  <div className="font-bold">
+                    {selectedToken?.trades[1]
+                      ? selectedToken?.trades[1].count
+                      : 0}
+                  </div>
+                  <div className="text-sm text-red-500">
+                    $
+                    {formatVolume(
+                      selectedToken?.trades[1]
+                        ? +selectedToken?.trades[1].volume
+                        : 0
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
