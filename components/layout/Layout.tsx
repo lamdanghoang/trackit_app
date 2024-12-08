@@ -1,5 +1,5 @@
 "use client";
-import DexList from "./DexList";
+import DexList from "../page/Meme/DexList";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -12,7 +12,7 @@ const Layout = ({
     <main className="flex flex-col min-h-screen">
       <Header />
       <div className="flex-1">{children}</div>
-      {/* <Footer /> */}
+      <Footer />
     </main>
   );
 };
