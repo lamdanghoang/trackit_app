@@ -11,7 +11,7 @@ export default function DexList() {
     <>
       <div className="hidden md:block w-40 border-r border-r-itemborder p-3 text-gray-50 text-sm">
         <div className="mb-4">
-          <h1 className="text-center font-bold">All DEXes</h1>
+          <h1 className="ml-5 font-bold">All DEXes</h1>
         </div>
         <nav className="space-y-2">
           {dexes.map((dex) => (
