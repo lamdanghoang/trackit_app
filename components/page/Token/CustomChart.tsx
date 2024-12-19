@@ -13,7 +13,7 @@ import {
   SeriesMarkerPosition,
   SeriesMarkerShape,
 } from "lightweight-charts";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useCallback } from "react";
 
 // Constants
 const TOOLTIP_CONFIG = {
@@ -148,6 +148,35 @@ export default function Chart(): JSX.Element {
   const symbolLabelRef = useRef<HTMLDivElement | null>(null);
   const { selectedToken } = useContext(GlobalContext);
 
+  const handleResize = useCallback(() => {
+    if (chartRef.current && chartContainerRef.current) {
+      const newWidth = chartContainerRef.current.clientWidth;
+      const newHeight = chartContainerRef.current.clientHeight;
+
+      chartRef.current.resize(newWidth, newHeight);
+
+      chartRef.current.timeScale().applyOptions({
+        rightOffset: 12,
+        barSpacing: 60,
+      });
+      chartRef.current.timeScale().fitContent();
+    }
+  }, []);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [handleResize]);
+
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -250,15 +279,6 @@ export default function Chart(): JSX.Element {
     chartContainerRef.current.appendChild(tooltipRef.current);
 
     // Event handlers
-    const handleResize = () => {
-      if (chartRef.current && chartContainerRef.current) {
-        chartRef.current.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-        });
-      }
-    };
-
     const handleCrosshairMove = (param: MouseEventParams) => {
       if (
         !tooltipRef.current ||
@@ -325,7 +345,7 @@ export default function Chart(): JSX.Element {
       }
       tooltipRef.current?.remove();
     };
-  }, [selectedToken]);
+  }, [selectedToken, handleResize]);
 
   return (
     <div className="w-full h-[500px] p-4 rounded-lg shadow-md">
