@@ -27,9 +27,9 @@ const sub_tabs = [
   "Whale",
   "Fresh",
   "Snipers",
-  "Top",
-  "DEV",
-  "Insiders",
+  // "Top",
+  // "DEV",
+  // "Insiders",
 ];
 
 export default function Token() {

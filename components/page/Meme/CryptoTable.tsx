@@ -46,7 +46,7 @@ export default function CryptoTable() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 7;
+  const itemsPerPage = 8;
 
   const clickHandler = (token: TokenInfo) => {
     setSelectedToken(token);
@@ -109,42 +109,32 @@ export default function CryptoTable() {
           <Table className="hidden md:table">
             <TableHeader className="sticky top-0 bg-panel/95 backdrop-blur z-10">
               <TableRow className="border-itemborder hover:bg-transparent">
-                <TableHead className="min-w-52 text-gray-400 font-medium">
+                <TableHead className="text-gray-400 font-medium">
                   Token
                 </TableHead>
-                <TableHead className="min-w-40 text-gray-400 font-medium">
+                <TableHead className="text-gray-400 font-medium">
                   Created on
                 </TableHead>
-                <TableHead className="min-w-32 text-gray-400 font-medium">
+                <TableHead className="text-gray-400 font-medium">
                   Price
                 </TableHead>
-                <TableHead className="min-w-32 text-gray-400 font-medium">
+                <TableHead className="text-gray-400 font-medium">
                   Mkt Cap
                 </TableHead>
-                <TableHead className="min-w-32 text-gray-400 font-medium">
+                <TableHead className="text-gray-400 font-medium">
                   % Holder
                 </TableHead>
-                <TableHead className="min-w-32 text-gray-400 font-medium">
-                  TXs
-                </TableHead>
-                <TableHead className="min-w-32 text-gray-400 font-medium">
-                  Vol
-                </TableHead>
-                <TableHead className="min-w-24 text-gray-400 font-medium">
-                  1m%
-                </TableHead>
-                <TableHead className="min-w-24 text-gray-400 font-medium">
-                  5m%
-                </TableHead>
-                <TableHead className="min-w-24 text-gray-400 font-medium">
-                  1h%
-                </TableHead>
-                <TableHead className="min-w-24"></TableHead>
+                <TableHead className="text-gray-400 font-medium">TXs</TableHead>
+                <TableHead className="text-gray-400 font-medium">Vol</TableHead>
+                <TableHead className="text-gray-400 font-medium">1m%</TableHead>
+                <TableHead className="text-gray-400 font-medium">5m%</TableHead>
+                <TableHead className="text-gray-400 font-medium">1h%</TableHead>
+                <TableHead className=""></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading &&
-                [...Array(7)].map((_, index) => <LoadingRow key={index} />)}
+                [...Array(6)].map((_, index) => <LoadingRow key={index} />)}
               {!isLoading &&
                 tokenInfoList.map((token: TokenInfo) => (
                   <TableRow

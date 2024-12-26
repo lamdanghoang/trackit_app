@@ -122,7 +122,7 @@ export default function TxHistory() {
               {header_table.map((header) => (
                 <th
                   key={header}
-                  className="px-4 py-2 text-left font-medium text-gray-400"
+                  className="min-w-40 px-4 py-2 text-left font-medium text-gray-400"
                 >
                   <div className="flex items-center">
                     {header}

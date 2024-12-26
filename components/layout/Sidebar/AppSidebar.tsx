@@ -18,7 +18,13 @@ import {
 } from "lucide-react";
 import { NavMain } from "@/components/layout/Sidebar/NavMain";
 import { NavUser } from "@/components/layout/Sidebar/nav-user";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { VisuallyHidden, Root } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -28,7 +34,7 @@ export function AppSidebar() {
   return (
     <>
       {/* Mobile Drawer using Sheet component */}
-      <div className="md:hidden">
+      <div className="md:hidden z-50">
         <Sheet>
           <SheetTrigger asChild>
             <button className="fixed top-4 left-4 z-50 p-2 bg-primary rounded-lg hover:bg-primary/90">
@@ -39,6 +45,9 @@ export function AppSidebar() {
             side="left"
             className="w-[300px] p-0 bg-primary text-gray-50"
           >
+            <VisuallyHidden>
+              <SheetTitle>Main</SheetTitle>
+            </VisuallyHidden>
             <div className="h-full flex flex-col">
               <MobileSidebarContent />
             </div>
@@ -47,7 +56,7 @@ export function AppSidebar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
+      <div className="hidden md:block">
         <div
           className={`
           relative 
@@ -59,7 +68,7 @@ export function AppSidebar() {
         >
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute -right-3 top-6 bg-primary rounded-full p-1 z-10"
+            className="absolute -right-0 top-1/2 bg-gray-300 rounded-full p-1 z-10"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4 text-primary-foreground" />
