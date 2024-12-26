@@ -11,6 +11,7 @@ import {
   Copy,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -31,20 +32,12 @@ import GlobalContext from "@/context/store";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-const table_header = [
-  "Token",
-  "Created on",
-  "Price",
-  "Mkt Cap",
-  "% Holder",
-  "TXs",
-  "Vol",
-  "1m%",
-  "5m%",
-  "1h%",
-  "",
-];
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 export default function CryptoTable() {
   const { setSelectedToken } = useContext(GlobalContext);
@@ -73,7 +66,7 @@ export default function CryptoTable() {
     setCurrentPage(newPage);
     window.scrollTo({
       top: 0,
-      behavior: "smooth", // Optional: adds a smooth scrolling effect
+      behavior: "smooth",
     });
   };
 
@@ -100,29 +93,66 @@ export default function CryptoTable() {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="w-full h-[calc(100vh-6rem)] bg-panel text-gray-100 rounded-lg overflow-hidden flex flex-col">
+    <div className="w-full h-[calc(100vh-6rem)] bg-panel text-gray-100 rounded-xl overflow-hidden flex flex-col shadow-lg">
+      {/* Header Section */}
+      <div className="p-4 border-b border-itemborder bg-gradient-to-r from-gray-900 to-gray-800">
+        <h2 className="text-xl font-bold">Top Tokens</h2>
+        <p className="text-gray-400 text-sm">
+          Track real-time cryptocurrency prices
+        </p>
+      </div>
+
+      {/* Table Section */}
       <div className="flex-1 max-w-full overflow-hidden">
         <ScrollArea className="w-full h-full">
-          <Table>
-            <TableHeader className="sticky top-0 bg-panel z-10">
-              <TableRow className="border-itemborder hover:bg-transparent whitespace-nowrap">
-                {table_header.map((header, index) => (
-                  <TableHead key={index} className="text-gray-400">
-                    {header}
-                  </TableHead>
-                ))}
+          {/* Desktop View */}
+          <Table className="hidden md:table">
+            <TableHeader className="sticky top-0 bg-panel/95 backdrop-blur z-10">
+              <TableRow className="border-itemborder hover:bg-transparent">
+                <TableHead className="min-w-52 text-gray-400 font-medium">
+                  Token
+                </TableHead>
+                <TableHead className="min-w-40 text-gray-400 font-medium">
+                  Created on
+                </TableHead>
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  Price
+                </TableHead>
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  Mkt Cap
+                </TableHead>
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  % Holder
+                </TableHead>
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  TXs
+                </TableHead>
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  Vol
+                </TableHead>
+                <TableHead className="min-w-24 text-gray-400 font-medium">
+                  1m%
+                </TableHead>
+                <TableHead className="min-w-24 text-gray-400 font-medium">
+                  5m%
+                </TableHead>
+                <TableHead className="min-w-24 text-gray-400 font-medium">
+                  1h%
+                </TableHead>
+                <TableHead className="min-w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading &&
-                [...Array(8)].map((_, index) => <LoadingRow key={index} />)}
+                [...Array(7)].map((_, index) => <LoadingRow key={index} />)}
               {!isLoading &&
-                tokenInfoList.map((token) => (
+                tokenInfoList.map((token: TokenInfo) => (
                   <TableRow
                     key={token.id}
-                    className="border-itemborder hover:bg-item whitespace-nowrap"
+                    className="border-itemborder hover:bg-item/50"
                   >
-                    <TableCell className="min-w-[200px] font-medium">
+                    <TableCell>
+                      {/* Token info cell content */}
                       <div className="flex items-center gap-2">
                         <img
                           src={token.image}
@@ -130,91 +160,154 @@ export default function CryptoTable() {
                           className="h-8 w-8 rounded-full"
                         />
                         <div className="flex flex-col">
-                          <div className="flex items-center gap-1">
-                            <span className="font-semibold">
-                              {token.tickerSymbol}
-                            </span>
-                            <EarthIcon width={12} height={12} />
-                            <TwitterIcon width={12} height={12} />
-                            <SendIcon width={12} height={12} />
-                          </div>
-                          <div className="text-xs">
-                            <button
-                              className="flex items-center gap-1"
-                              onClick={() => copyAddress(token)}
-                            >
-                              <span>{formatAddress(token.creator)}</span>
-                              <Copy className="h-2 w-2" />
-                            </button>
-                          </div>
+                          <span className="font-semibold">
+                            {token.tickerSymbol}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {formatAddress(token.creator)}
+                          </span>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="min-w-[100px]">
+                    <TableCell>
                       {format(new Date(token.cdate), "yyyy-MM-dd")}
                     </TableCell>
-                    <TableCell className="min-w-[80px]">
-                      ${token.aptosUSDPrice.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="min-w-[100px]">
-                      {formatVolume(token.marketCapUSD)}
-                    </TableCell>
-                    <TableCell>5</TableCell>
+                    <TableCell>${token.aptosUSDPrice.toFixed(2)}</TableCell>
+                    <TableCell>{formatVolume(token.marketCapUSD)}</TableCell>
+                    <TableCell>5%</TableCell>
                     <TableCell>10</TableCell>
-                    <TableCell>15</TableCell>
+                    <TableCell>{formatVolume(15000000)}</TableCell>
                     <TableCell
-                      className={false ? "text-red-500" : "text-green-500"}
+                      className={
+                        token.priceChange1m > 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }
                     >
-                      5
+                      {token.priceChange1m}%
                     </TableCell>
                     <TableCell
-                      className={false ? "text-red-500" : "text-green-500"}
+                      className={
+                        token.priceChange5m > 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }
                     >
-                      10
+                      {token.priceChange5m}%
                     </TableCell>
                     <TableCell
-                      className={false ? "text-red-500" : "text-green-500"}
+                      className={
+                        token.priceChange1h > 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }
                     >
-                      15
+                      {token.priceChange1h}%
                     </TableCell>
                     <TableCell>
                       <Button
                         size="sm"
-                        className="bg-gray-800 hover:bg-gray-700 text-gray-100"
                         onClick={() => clickHandler(token)}
+                        className="bg-gray-800 hover:bg-gray-700"
                       >
-                        Detail
-                        <ArrowRight className="h-4 w-4 ml-1" />
+                        Details
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
           </Table>
+
+          {/* Mobile View */}
+          <ul className="md:hidden divide-y divide-itemborder">
+            {!isLoading &&
+              tokenInfoList.map((token) => (
+                <li key={token.id} className="p-4 hover:bg-item/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={token.image}
+                        alt=""
+                        className="h-8 w-8 rounded-full"
+                      />
+                      <div>
+                        <div className="font-semibold">
+                          {token.tickerSymbol}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {formatAddress(token.creator)}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => clickHandler(token)}
+                      className="bg-gray-800 hover:bg-gray-700"
+                    >
+                      Details
+                    </Button>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <dt className="text-gray-400">Price</dt>
+                      <dd className="font-medium">
+                        ${token.aptosUSDPrice.toFixed(2)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-gray-400">Market Cap</dt>
+                      <dd>{formatVolume(token.marketCapUSD)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-gray-400">24h Change</dt>
+                      <dd
+                        className={
+                          token.priceChange24h > 0
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }
+                      >
+                        {token.priceChange24h}%
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-gray-400">Volume</dt>
+                      <dd>{formatVolume(15000000)}</dd>
+                    </div>
+                  </dl>
+                </li>
+              ))}
+          </ul>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
 
+      {/* Pagination */}
       {!isLoading && (
-        <div className="flex justify-center items-center space-x-2 py-4 border-t border-itemborder">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="h-6 text-white"
-          >
-            <ChevronLeft className="h-4 w-4" stroke="#000" />
-          </Button>
-          <span>Page {currentPage}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="h-6 text-white"
-          >
-            <ChevronRight className="h-4 w-4" stroke="#000" />
-          </Button>
+        <div className="flex justify-between items-center p-4 border-t border-itemborder bg-gradient-to-r from-gray-900 to-gray-800">
+          <span className="text-sm text-gray-400 hidden sm:inline">
+            Showing {itemsPerPage} tokens per page
+          </span>
+          <div className="flex items-center gap-2 mx-auto sm:mx-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium px-2">Page {currentPage}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="h-8"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -259,4 +352,53 @@ const ErrorAlert = ({
       </button>
     </AlertDescription>
   </Alert>
+);
+
+// Utility Components
+const SocialButton = ({ icon: Icon, link }: { icon: any; link: string }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button className="p-1 rounded-full hover:bg-gray-700/50 transition-colors">
+        <Icon className="h-3 w-3 text-gray-400" />
+      </button>
+    </TooltipTrigger>
+    <TooltipContent>Visit Website</TooltipContent>
+  </Tooltip>
+);
+
+const CopyableAddress = ({
+  address,
+  onClick,
+}: {
+  address: string;
+  onClick: () => void;
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button
+        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-300 transition-colors"
+        onClick={onClick}
+      >
+        <span>{formatAddress(address)}</span>
+        <Copy className="h-3 w-3" />
+      </button>
+    </TooltipTrigger>
+    <TooltipContent>Copy Address</TooltipContent>
+  </Tooltip>
+);
+
+const PriceChangeCell = ({ value }: { value: number }) => (
+  <TableCell>
+    <span
+      className={`flex items-center gap-1 ${
+        value >= 0 ? "text-green-500" : "text-red-500"
+      }`}
+    >
+      {value >= 0 ? "+" : ""}
+      {value}%
+      <ArrowUpRight
+        className={`h-3 w-3 ${value >= 0 ? "rotate-0" : "rotate-180"}`}
+      />
+    </span>
+  </TableCell>
 );
