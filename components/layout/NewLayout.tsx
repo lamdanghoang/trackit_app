@@ -1,5 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/layout/Sidebar/AppSidebar";
+import SearchForm from "./SearchForm";
 import {
   SidebarInset,
   SidebarProvider,
@@ -19,10 +20,11 @@ const Layout = ({
         </div>
         <main className="flex-1 min-w-0">
           <SidebarInset className="flex flex-col min-h-screen bg-transparent">
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b border-gray-800">
-              <div className="flex items-center gap-2 px-4">
-                {/* <SidebarTrigger className="-ml-1" /> */}
-              </div>
+            <header className="flex h-16 shrink-0 items-center gap-2">
+              {/* <SidebarTrigger className="-ml-1" /> */}
+
+              {/* Search Form */}
+              <SearchForm />
             </header>
             <div className="flex-1">
               <div className="p-4 w-full">{children}</div>

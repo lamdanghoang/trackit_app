@@ -9,7 +9,7 @@ import CryptoTable from "./CryptoTable";
 
 export default function Page() {
   return (
-    <div className="grow p-3 w-full">
+    <div className="grow w-full">
       <CryptoTable />
     </div>
   );

@@ -4,10 +4,11 @@ import * as React from "react";
 import {
   Link as Chain,
   Scan,
+  PanelLeftIcon,
   PanelLeft,
   Settings2,
   Menu,
-  X,
+  ListCheckIcon,
   ChevronLeft,
   ChevronRight,
   PieChart,
@@ -15,6 +16,9 @@ import {
   GalleryVerticalEnd,
   AudioWaveform,
   Command,
+  ComponentIcon,
+  CoinsIcon,
+  ScanSearchIcon,
 } from "lucide-react";
 import { NavMain } from "@/components/layout/Sidebar/NavMain";
 import { NavUser } from "@/components/layout/Sidebar/nav-user";
@@ -24,6 +28,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  SidebarMenuButton,
+  SidebarMenuSubButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuItem,
+  SidebarMenu,
+  SidebarGroup,
+  SidebarSeparator,
+} from "../../ui/sidebar";
 import { VisuallyHidden, Root } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import Link from "next/link";
@@ -63,6 +77,7 @@ export function AppSidebar() {
           ${isCollapsed ? "w-[80px]" : "w-60"}
           transition-all duration-300
           border-r
+          border-itemborder
           h-screen
         `}
         >
@@ -89,7 +104,7 @@ export function AppSidebar() {
 function MobileSidebarContent() {
   return (
     <>
-      <div className="p-4 border-b">
+      <div className="p-4">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="trackit" height={40} width={40} />
           <span className="font-bold text-2xl">TrackIt</span>
@@ -100,7 +115,7 @@ function MobileSidebarContent() {
         <NavMain items={items} />
       </div>
 
-      <div className="border-t p-4">
+      <div className="p-4">
         <NavUser user={data.user} />
       </div>
     </>
@@ -110,7 +125,7 @@ function MobileSidebarContent() {
 function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
   return (
     <>
-      <div className="p-4 border-b">
+      <div className="p-4">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="trackit" height={40} width={40} />
           {!isCollapsed && <span className="font-bold text-2xl">TrackIt</span>}
@@ -118,15 +133,62 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        <NavMain
-          items={items.map((item) => ({
-            ...item,
-            title: isCollapsed ? undefined : item.title,
-          }))}
-        />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="/dashboard">
+                  <PanelLeftIcon />
+                  <span className="text-base">Dashboard</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="#">
+                  <ListCheckIcon />
+                  <span className="text-base">Watchlist</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="#">
+                  <ScanSearchIcon />
+                  <span className="text-base">Portfolio Tracker</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarSeparator className="my-4 bg-itemborder" />
+        <SidebarGroup>
+          <SidebarMenu className="space-y-1">
+            {chains.map((chain, index) => (
+              <SidebarMenuItem key={index}>
+                <SidebarMenuButton asChild>
+                  <a href="#" className="flex items-center gap-2">
+                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                      <Image
+                        src={chain.logo}
+                        alt={chain.name}
+                        width={20}
+                        height={20}
+                        className="max-w-full max-h-full"
+                      />
+                    </div>
+                    <span className="text-base tracking-wider">
+                      {chain.name}
+                    </span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </div>
 
-      <div className="border-t p-4">
+      <div className="p-4">
         <NavUser user={data.user} showDetails={!isCollapsed} />
       </div>
     </>
@@ -325,5 +387,41 @@ const items = [
     url: "/dashboard",
     icon: PanelLeft,
     collapsible: false,
+  },
+];
+
+const chains = [
+  {
+    name: "Movement",
+    logo: "/chains/movement-mark.svg",
+  },
+  {
+    name: "Polkadot",
+    logo: "/chains/polkadot.svg",
+  },
+  {
+    name: "Berachain",
+    logo: "/chains/berachain.png",
+  },
+  {
+    name: "Starknet",
+    logo: "/chains/starknet.svg",
+  },
+
+  {
+    name: "Manta",
+    logo: "/chains/manta.svg",
+  },
+  {
+    name: "Kaia",
+    logo: "/chains/kaia.svg",
+  },
+  {
+    name: "Ancient8",
+    logo: "/chains/ancient8.svg",
+  },
+  {
+    name: "Sui",
+    logo: "/chains/sui.svg",
   },
 ];

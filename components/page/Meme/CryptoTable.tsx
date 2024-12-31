@@ -38,6 +38,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 export default function CryptoTable() {
   const { setSelectedToken } = useContext(GlobalContext);
@@ -93,9 +94,9 @@ export default function CryptoTable() {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="w-full h-[calc(100vh-6rem)] bg-panel text-gray-100 rounded-xl overflow-hidden flex flex-col shadow-lg">
+    <div className="w-full h-[calc(100vh-6rem)] text-gray-100 rounded-xl overflow-hidden flex flex-col shadow-lg">
       {/* Header Section */}
-      <div className="p-4 border-b border-itemborder bg-gradient-to-r from-gray-900 to-gray-800">
+      <div className="p-4 border-b border-itemborder">
         <h2 className="text-xl font-bold">Top Tokens</h2>
         <p className="text-gray-400 text-sm">
           Track real-time cryptocurrency prices
@@ -103,32 +104,45 @@ export default function CryptoTable() {
       </div>
 
       {/* Table Section */}
-      <div className="flex-1 max-w-full overflow-hidden">
+      <div className="flex-1 max-w-full overflow-hidden bg-panel ">
         <ScrollArea className="w-full h-full">
           {/* Desktop View */}
           <Table className="hidden md:table">
-            <TableHeader className="sticky top-0 bg-panel/95 backdrop-blur z-10">
+            <TableHeader className="sticky top-0 z-10 bg-gray-800">
               <TableRow className="border-itemborder hover:bg-transparent">
-                <TableHead className="text-gray-400 font-medium">
-                  Token
+                <TableHead className="min-w-44 text-gray-400 font-medium">
+                  TOKEN
                 </TableHead>
-                <TableHead className="text-gray-400 font-medium">
-                  Created on
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  EXCHANGE
                 </TableHead>
-                <TableHead className="text-gray-400 font-medium">
-                  Price
+                <TableHead className="min-w-32 text-gray-400 font-medium">
+                  CREATED ON
                 </TableHead>
-                <TableHead className="text-gray-400 font-medium">
-                  Mkt Cap
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  PRICE
                 </TableHead>
-                <TableHead className="text-gray-400 font-medium">
-                  % Holder
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  MKT CAP
                 </TableHead>
-                <TableHead className="text-gray-400 font-medium">TXs</TableHead>
-                <TableHead className="text-gray-400 font-medium">Vol</TableHead>
-                <TableHead className="text-gray-400 font-medium">1m%</TableHead>
-                <TableHead className="text-gray-400 font-medium">5m%</TableHead>
-                <TableHead className="text-gray-400 font-medium">1h%</TableHead>
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  % HOLDER
+                </TableHead>
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  TXS
+                </TableHead>
+                <TableHead className="min-w-28 text-gray-400 font-medium">
+                  VOL.
+                </TableHead>
+                <TableHead className="min-w-20 text-gray-400 font-medium">
+                  1M%
+                </TableHead>
+                <TableHead className="min-w-20 text-gray-400 font-medium">
+                  5M%
+                </TableHead>
+                <TableHead className="min-w-20 text-gray-400 font-medium">
+                  1H%
+                </TableHead>
                 <TableHead className=""></TableHead>
               </TableRow>
             </TableHeader>
@@ -139,7 +153,7 @@ export default function CryptoTable() {
                 tokenInfoList.map((token: TokenInfo) => (
                   <TableRow
                     key={token.id}
-                    className="border-itemborder hover:bg-item/50"
+                    className="border-itemborder hover:bg-itemborder bg-[#0E0F13]"
                   >
                     <TableCell>
                       {/* Token info cell content */}
@@ -160,6 +174,24 @@ export default function CryptoTable() {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center">
+                        <Image
+                          src="/dexes/routex.png"
+                          alt="routex"
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                        <Image
+                          src="/dexes/warpgate.png"
+                          alt="routex"
+                          width={32}
+                          height={32}
+                          className="rounded-full -ml-4"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       {format(new Date(token.cdate), "yyyy-MM-dd")}
                     </TableCell>
                     <TableCell>${token.aptosUSDPrice.toFixed(2)}</TableCell>
@@ -174,7 +206,7 @@ export default function CryptoTable() {
                           : "text-red-500"
                       }
                     >
-                      {token.priceChange1m}%
+                      -1.1%
                     </TableCell>
                     <TableCell
                       className={
@@ -183,7 +215,7 @@ export default function CryptoTable() {
                           : "text-red-500"
                       }
                     >
-                      {token.priceChange5m}%
+                      -0.5%
                     </TableCell>
                     <TableCell
                       className={
@@ -192,13 +224,13 @@ export default function CryptoTable() {
                           : "text-red-500"
                       }
                     >
-                      {token.priceChange1h}%
+                      -0.01%
                     </TableCell>
                     <TableCell>
                       <Button
                         size="sm"
                         onClick={() => clickHandler(token)}
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="bg-bluesky hover:bg-gray-700"
                       >
                         Details
                       </Button>
@@ -274,7 +306,7 @@ export default function CryptoTable() {
 
       {/* Pagination */}
       {!isLoading && (
-        <div className="flex justify-between items-center p-4 border-t border-itemborder bg-gradient-to-r from-gray-900 to-gray-800">
+        <div className="flex justify-between items-center p-4 border-t border-itemborder">
           <span className="text-sm text-gray-400 hidden sm:inline">
             Showing {itemsPerPage} tokens per page
           </span>
@@ -284,7 +316,7 @@ export default function CryptoTable() {
               size="sm"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="h-8"
+              className="h-8 text-gray-800"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -293,7 +325,7 @@ export default function CryptoTable() {
               variant="outline"
               size="sm"
               onClick={() => handlePageChange(currentPage + 1)}
-              className="h-8"
+              className="h-8 text-gray-800"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -305,7 +337,8 @@ export default function CryptoTable() {
 }
 
 const LoadingRow = () => (
-  <TableRow className="border-itemborder">
+  <TableRow className="border-itemborder bg-[#0E0F13]">
+    {/* Token Column */}
     <TableCell>
       <div className="flex items-center gap-2">
         <Skeleton className="h-8 w-8 rounded-full" />
@@ -315,11 +348,46 @@ const LoadingRow = () => (
         </div>
       </div>
     </TableCell>
-    {[...Array(9)].map((_, i) => (
-      <TableCell key={i}>
-        <Skeleton className="h-4 w-16" />
-      </TableCell>
-    ))}
+    {/* Created On Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-24" />
+    </TableCell>
+    {/* Price Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-20" />
+    </TableCell>
+    {/* Market Cap Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-24" />
+    </TableCell>
+    {/* Holder % Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-12" />
+    </TableCell>
+    {/* TXS Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-16" />
+    </TableCell>
+    {/* Volume Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-24" />
+    </TableCell>
+    {/* 1M% Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-16" />
+    </TableCell>
+    {/* 5M% Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-16" />
+    </TableCell>
+    {/* 1H% Column */}
+    <TableCell>
+      <Skeleton className="h-4 w-16" />
+    </TableCell>
+    {/* Details Button Column */}
+    <TableCell>
+      <Skeleton className="h-8 w-16 rounded-md" />
+    </TableCell>
   </TableRow>
 );
 
