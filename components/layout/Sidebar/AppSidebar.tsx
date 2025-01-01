@@ -76,14 +76,12 @@ export function AppSidebar() {
           relative 
           ${isCollapsed ? "w-[80px]" : "w-60"}
           transition-all duration-300
-          border-r
-          border-itemborder
           h-screen
         `}
         >
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute -right-0 top-1/2 bg-gray-300 rounded-full p-1 z-10"
+            className="absolute -right-3 top-1/2 bg-bluesky hover:bg-blue-300 rounded-full p-1 z-10"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4 text-primary-foreground" />
@@ -125,14 +123,14 @@ function MobileSidebarContent() {
 function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
   return (
     <>
-      <div className="p-4">
+      <div className="p-4 bg-panel">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="trackit" height={40} width={40} />
           {!isCollapsed && <span className="font-bold text-2xl">TrackIt</span>}
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 bg-panel">
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -145,7 +143,7 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href="#">
+                <a href="/watchlist">
                   <ListCheckIcon />
                   <span className="text-base">Watchlist</span>
                 </a>
@@ -153,7 +151,7 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href="#">
+                <a href="/tracker">
                   <ScanSearchIcon />
                   <span className="text-base">Portfolio Tracker</span>
                 </a>
@@ -188,7 +186,7 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
         </SidebarGroup>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 bg-panel">
         <NavUser user={data.user} showDetails={!isCollapsed} />
       </div>
     </>
