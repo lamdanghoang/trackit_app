@@ -59,10 +59,18 @@ const exchangeData = [
   },
 ];
 
+interface Path {
+  source: string;
+  srcAsset: string;
+  dstAsset: string;
+  srcAmount: number;
+  dstAmount: number;
+}
+
 export default function SearchForm() {
   const [searchValue, setSearchValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<Path[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
