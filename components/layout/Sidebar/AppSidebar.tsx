@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   Link as Chain,
   Scan,
@@ -41,6 +42,14 @@ import {
 import { VisuallyHidden, Root } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import Link from "next/link";
+
+interface ChainButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  isActive?: boolean;
+  isNew?: boolean;
+  logo: string;
+  name: string;
+}
 
 export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -100,6 +109,8 @@ export function AppSidebar() {
 }
 
 function MobileSidebarContent() {
+  const [activeChain, setActiveChain] = React.useState("Movement");
+
   return (
     <>
       <div className="p-4">
@@ -110,7 +121,46 @@ function MobileSidebarContent() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        <NavMain items={items} />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="/dashboard">
+                  <PanelLeftIcon />
+                  <span className="text-base">Dashboard</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="/watchlist">
+                  <ListCheckIcon />
+                  <span className="text-base">Watchlist</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href="/tracker">
+                  <ScanSearchIcon />
+                  <span className="text-base">Portfolio Tracker</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarSeparator className="my-4 bg-itemborder" />
+        <SidebarGroup className="grid grid-cols-3 gap-2 p-0">
+          {chains.map((chain) => (
+            <ChainButton
+              key={chain.name}
+              logo={chain.logo}
+              name={chain.name}
+              // isActive={activeChain === chain.name}
+              // onClick={() => setActiveChain(chain.name)}
+            />
+          ))}
+        </SidebarGroup>
       </div>
 
       <div className="p-4">
@@ -190,6 +240,42 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
         <NavUser user={data.user} showDetails={!isCollapsed} />
       </div>
     </>
+  );
+}
+
+function ChainButton({
+  isActive,
+  isNew,
+  logo,
+  name,
+  className,
+  ...props
+}: ChainButtonProps) {
+  return (
+    <button
+      className={cn(
+        "group relative flex flex-col items-center justify-center rounded-xl p-4 text-center transition-colors hover:bg-accent",
+        isActive && "bg-blue-500",
+        className
+      )}
+      {...props}
+    >
+      {isNew && (
+        <span className="absolute right-2 top-2 rounded bg-emerald-500 px-1.5 py-0.5 text-xs font-medium text-white">
+          NEW
+        </span>
+      )}
+      <Image
+        src={logo}
+        alt={name}
+        width={20}
+        height={20}
+        className="mb-2 text-2xl"
+      />
+      <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">
+        {name}
+      </span>
+    </button>
   );
 }
 

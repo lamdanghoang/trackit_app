@@ -200,31 +200,19 @@ export default function CryptoTable() {
                     <TableCell>10</TableCell>
                     <TableCell>{formatVolume(15000000)}</TableCell>
                     <TableCell
-                      className={
-                        token.priceChange1m > 0
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
+                      className={false ? "text-green-500" : "text-red-500"}
                     >
                       -1.1%
                     </TableCell>
                     <TableCell
-                      className={
-                        token.priceChange5m > 0
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
+                      className={false ? "text-green-500" : "text-red-500"}
                     >
                       -0.5%
                     </TableCell>
                     <TableCell
-                      className={
-                        token.priceChange1h > 0
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
+                      className={true ? "text-green-500" : "text-red-500"}
                     >
-                      -0.01%
+                      5.09%
                     </TableCell>
                     <TableCell>
                       <Button
@@ -282,14 +270,8 @@ export default function CryptoTable() {
                     </div>
                     <div>
                       <dt className="text-gray-400">24h Change</dt>
-                      <dd
-                        className={
-                          token.priceChange24h > 0
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }
-                      >
-                        {token.priceChange24h}%
+                      <dd className={true ? "text-green-500" : "text-red-500"}>
+                        2.99%
                       </dd>
                     </div>
                     <div>
