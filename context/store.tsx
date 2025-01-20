@@ -9,6 +9,8 @@ interface ContextProps {
   setSelectedToken: Dispatch<SetStateAction<TokenInfo | null>>;
   selectedChain: string;
   setSelectedChain: Dispatch<SetStateAction<string>>;
+  selectedNav: string;
+  setSelectedNav: Dispatch<SetStateAction<string>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -18,6 +20,8 @@ const GlobalContext = createContext<ContextProps>({
   setSelectedToken: () => {},
   selectedChain: "movement",
   setSelectedChain: () => {},
+  selectedNav: "Meme",
+  setSelectedNav: () => {},
 });
 
 export default GlobalContext;
@@ -30,6 +34,7 @@ export const GlobalContextProvider = ({
   const [loadingFullScreen, setLoadingFullScreen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(token);
   const [selectedChain, setSelectedChain] = useState<string>("movement");
+  const [selectedNav, setSelectedNav] = useState<string>("Meme");
 
   return (
     <GlobalContext.Provider
@@ -40,6 +45,8 @@ export const GlobalContextProvider = ({
         setSelectedToken,
         selectedChain,
         setSelectedChain,
+        selectedNav,
+        setSelectedNav,
       }}
     >
       {children}

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
   Link as Chain,
@@ -20,6 +19,13 @@ import {
   ComponentIcon,
   CoinsIcon,
   ScanSearchIcon,
+  SlidersVerticalIcon,
+  LogOutIcon,
+  FlameIcon,
+  UsersIcon,
+  ChartColumnIncreasingIcon,
+  DatabaseIcon,
+  FileChartColumnIncreasingIcon,
 } from "lucide-react";
 import { NavMain } from "@/components/layout/Sidebar/NavMain";
 import { NavUser } from "@/components/layout/Sidebar/nav-user";
@@ -43,6 +49,8 @@ import { VisuallyHidden, Root } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import Link from "next/link";
 import GlobalContext from "@/context/store";
+import { useState } from "react";
+import { useContext } from "react";
 
 interface ChainButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -53,7 +61,7 @@ interface ChainButtonProps
 }
 
 export function AppSidebar() {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <>
@@ -84,7 +92,7 @@ export function AppSidebar() {
         <div
           className={`
           relative 
-          ${isCollapsed ? "w-[84px]" : "w-60"}
+          ${isCollapsed ? "w-[93px]" : "w-[210px]"}
           transition-all duration-300
           h-screen
         `}
@@ -100,7 +108,7 @@ export function AppSidebar() {
             )}
           </button>
 
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full sidebar">
             <DesktopSidebarContent isCollapsed={isCollapsed} />
           </div>
         </div>
@@ -110,7 +118,7 @@ export function AppSidebar() {
 }
 
 function MobileSidebarContent() {
-  const { selectedChain, setSelectedChain } = React.useContext(GlobalContext);
+  const { selectedChain, setSelectedChain } = useContext(GlobalContext);
   return (
     <>
       <div className="p-4">
@@ -171,69 +179,45 @@ function MobileSidebarContent() {
 }
 
 function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
-  const { selectedChain, setSelectedChain } = React.useContext(GlobalContext);
+  const { selectedNav, setSelectedNav } = useContext(GlobalContext);
   return (
     <>
-      <div className="p-4 bg-panel">
+      <div className="py-4 mx-auto">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="trackit" height={40} width={40} />
           {!isCollapsed && <span className="font-bold text-2xl">TrackIt</span>}
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 bg-panel">
+      <div className="flex-1 overflow-y-auto p-4 pt-0 pl-6">
         <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/dashboard">
-                  <PanelLeftIcon />
-                  <span className="text-base">Dashboard</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/watchlist">
-                  <ListCheckIcon />
-                  <span className="text-base">Watchlist</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/tracker">
-                  <ScanSearchIcon />
-                  <span className="text-base">Portfolio Tracker</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarSeparator className="my-4 bg-itemborder" />
-        <SidebarGroup>
-          <SidebarMenu className="space-y-1">
-            {chains.map((chain, index) => (
+          <SidebarMenu className="gap-4">
+            {mainNav.map((nav) => (
               <SidebarMenuItem
-                key={index}
-                className={`${
-                  selectedChain === chain.value ? "bg-gray-600 rounded-lg" : ""
-                }`}
-                onClick={() => setSelectedChain(chain.value)}
+                key={nav.name}
+                className={`${selectedNav === nav.name ? "selected-nav" : ""}`}
               >
-                <SidebarMenuButton asChild>
-                  <a href="#" className="flex items-center gap-3">
-                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                      <Image
-                        src={chain.logo}
-                        alt={chain.name}
-                        width={20}
-                        height={20}
-                        className="max-w-full max-h-full"
-                      />
-                    </div>
-                    <span className="text-base tracking-wider">
-                      {chain.name}
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => setSelectedNav(nav.name)}
+                >
+                  <a
+                    href={nav.url}
+                    className={
+                      selectedNav === nav.name
+                        ? "text-bluesky"
+                        : "text-gray-500"
+                    }
+                  >
+                    {nav.icon}
+                    <span
+                      className={
+                        selectedNav === nav.name
+                          ? "text-gray-400"
+                          : "text-gray-500"
+                      }
+                    >
+                      {nav.name}
                     </span>
                   </a>
                 </SidebarMenuButton>
@@ -243,8 +227,24 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
         </SidebarGroup>
       </div>
 
-      <div className="p-4 bg-panel">
-        <NavUser user={data.user} showDetails={!isCollapsed} />
+      <div className="p-4 pl-6 space-y-6">
+        {/* <NavUser user={data.user} showDetails={!isCollapsed} /> */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="text-gray-400">
+                <SlidersVerticalIcon />
+                <span>Settings</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="text-gray-400">
+                <LogOutIcon />
+                <span>Logout</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </div>
     </>
   );
@@ -520,5 +520,33 @@ const chains = [
     name: "Sui",
     logo: "/chains/sui.svg",
     value: "sui",
+  },
+];
+
+const mainNav = [
+  {
+    icon: <FlameIcon />,
+    name: "Meme",
+    url: "#",
+  },
+  {
+    icon: <UsersIcon />,
+    name: "New Pair",
+    url: "#",
+  },
+  {
+    icon: <ChartColumnIncreasingIcon />,
+    name: "Trending",
+    url: "#",
+  },
+  {
+    icon: <DatabaseIcon />,
+    name: "Holding",
+    url: "#",
+  },
+  {
+    icon: <FileChartColumnIncreasingIcon />,
+    name: "Follow",
+    url: "#",
   },
 ];

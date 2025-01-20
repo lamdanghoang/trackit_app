@@ -14,7 +14,11 @@ export default function Page() {
 
   return (
     <div className="grow w-full">
-      {selectedChain === "movement" ? <CryptoTable /> : <YieldInfo />}
+      {selectedChain === "movement" || selectedChain === "sui" ? (
+        <CryptoTable />
+      ) : (
+        <YieldInfo />
+      )}
     </div>
   );
 }
