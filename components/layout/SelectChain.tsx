@@ -23,6 +23,11 @@ const chains = [
     value: "sui",
   },
   {
+    name: "Viction",
+    logo: "/chains/viction.svg",
+    value: "viction",
+  },
+  {
     name: "Kaia",
     logo: "/chains/kaia.svg",
     value: "kaia",

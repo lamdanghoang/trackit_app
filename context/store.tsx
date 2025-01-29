@@ -3,6 +3,8 @@ import { TokenInfo } from "@/types/interface";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
 
 interface ContextProps {
+  isLogged: boolean;
+  setIsLogged: Dispatch<SetStateAction<boolean>>;
   loadingFullScreen: boolean;
   setLoadingFullScreen: Dispatch<SetStateAction<boolean>>;
   selectedToken: TokenInfo | null;
@@ -14,6 +16,8 @@ interface ContextProps {
 }
 
 const GlobalContext = createContext<ContextProps>({
+  isLogged: false,
+  setIsLogged: () => {},
   loadingFullScreen: false,
   setLoadingFullScreen: () => {},
   selectedToken: null,
@@ -31,6 +35,7 @@ export const GlobalContextProvider = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const [isLogged, setIsLogged] = useState(false);
   const [loadingFullScreen, setLoadingFullScreen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(token);
   const [selectedChain, setSelectedChain] = useState<string>("movement");
@@ -39,6 +44,8 @@ export const GlobalContextProvider = ({
   return (
     <GlobalContext.Provider
       value={{
+        isLogged,
+        setIsLogged,
         loadingFullScreen,
         setLoadingFullScreen,
         selectedToken,

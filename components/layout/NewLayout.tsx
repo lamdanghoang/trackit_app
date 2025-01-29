@@ -32,11 +32,11 @@ const Layout = ({
             <header className="flex h-16 px-6 py-4 shrink-0 items-center justify-between border-b border-b-[#132D5B]">
               {/* <SidebarTrigger className="-ml-1" /> */}
 
-              <span className="text-gray-300 font-semibold text-xl">
+              <span className="hidden md:block text-gray-300 font-semibold text-xl">
                 {selectedNav}
               </span>
 
-              <div className="flex items-center text-gray-500 gap-8">
+              <div className="hidden md:flex items-center text-gray-500 gap-8">
                 <SearchForm />
                 <SelectChain />
                 <BoltIcon strokeWidth={1} />
@@ -45,9 +45,9 @@ const Layout = ({
                   orientation="vertical"
                   className="h-5 w-0.5 bg-gray-700"
                 />
-                <Avatar className="h-10 w-10 rounded-lg">
+                <Avatar className="h-10 w-10 rounded-lg cursor-pointer">
                   <AvatarImage src="/logo.png" alt="avatar" />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">N/A</AvatarFallback>
                 </Avatar>
               </div>
             </header>

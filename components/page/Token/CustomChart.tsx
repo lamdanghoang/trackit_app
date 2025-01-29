@@ -50,7 +50,7 @@ interface ChartData {
 const chartOptions: DeepPartial<ChartOptions> = {
   layout: {
     textColor: "white",
-    background: { color: "#34333D" },
+    background: { color: "transparent" },
   },
   grid: {
     vertLines: {

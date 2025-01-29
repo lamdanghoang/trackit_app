@@ -15,6 +15,9 @@ import {
   ExternalLink,
   CopyIcon,
   GlobeIcon,
+  ZapIcon,
+  FilterIcon,
+  FilterXIcon,
 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -51,6 +54,8 @@ export default function CryptoTable() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedTime, setSelectedTime] = useState<string>("1m");
+  const [isFiltered, setIsFiltered] = useState<boolean>(false);
   const itemsPerPage = 8;
 
   const clickHandler = (token: TokenInfo) => {
@@ -98,13 +103,48 @@ export default function CryptoTable() {
   }, [currentPage, itemsPerPage]);
 
   return (
-    <div className="w-full h-[calc(100vh-6rem)] text-gray-100 rounded-xl overflow-hidden flex flex-col shadow-lg">
-      {/* Header Section */}
-      <div className="p-4">
-        <h2 className="text-xl font-bold">Top Tokens</h2>
-        <p className="text-gray-400 text-sm">
-          Track real-time cryptocurrency prices
-        </p>
+    <div className="w-full h-[calc(100vh-6rem)] text-gray-100 overflow-hidden flex flex-col shadow-lg">
+      {/* Time Filters */}
+      <div className="mb-4 md:flex">
+        <div className="border border-[#1a3c78] rounded-lg w-fit mb-3 md:mb-0">
+          {timeFilters.map((filter) => (
+            <Button
+              key={filter}
+              variant="ghost"
+              onClick={() => setSelectedTime(filter)}
+              className={`${
+                selectedTime === filter
+                  ? "bg-[#005880] text-gray-300"
+                  : "bg-[#102447] text-gray-500"
+              } text-sm border-r border-r-[#1a3c78] last:border-none rounded-none first:rounded-s-lg last:rounded-e-lg hover:bg-[#005880] hover:text-current`}
+            >
+              {filter}
+            </Button>
+          ))}
+        </div>
+        <div className="ml-auto flex items-center gap-4">
+          {/* <Button variant="outline" className="gap-2">
+            <ZapIcon className="h-4 w-4" />
+            Buy
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline">0</Button>
+            <Button variant="outline">$</Button>
+          </div> */}
+          <Button
+            className="px-5 text-gray-300 bg-[#102447] hover:bg-[#005880] hover:text-current"
+            onClick={() => setIsFiltered(!isFiltered)}
+          >
+            {!isFiltered ? <FilterIcon /> : <FilterXIcon />}
+            <span className="text-[15px]">Filter Token</span>
+          </Button>
+          <Button
+            variant="default"
+            className="px-5 bg-bluesky text-base font-semibold hover:bg-bluesky/80"
+          >
+            Connect
+          </Button>
+        </div>
       </div>
 
       {/* Table Section */}
@@ -321,9 +361,15 @@ export default function CryptoTable() {
                     <Button
                       size="sm"
                       onClick={() => clickHandler(token)}
-                      className="bg-bluesky hover:bg-blue-300"
+                      className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50"
                     >
-                      Details
+                      <Image
+                        src="/flash.png"
+                        alt="flash"
+                        width={20}
+                        height={20}
+                      />
+                      <span className="text-[15px] font-medium">Buy</span>
                     </Button>
                   </div>
                   <dl className="grid grid-cols-2 gap-4 text-sm">
@@ -511,3 +557,5 @@ const PriceChangeCell = ({ value }: { value: number }) => (
     </span>
   </TableCell>
 );
+
+const timeFilters = ["1m", "5m", "1h", "6h", "24h"];

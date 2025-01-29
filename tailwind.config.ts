@@ -54,7 +54,7 @@ export default {
           DEFAULT: "hsl(var(--secondary-custom-color-light))",
         },
         itemborder: {
-          DEFAULT: "hsl(var(--custom-border))",
+          DEFAULT: "var(--custom-border)",
         },
       },
       borderRadius: {

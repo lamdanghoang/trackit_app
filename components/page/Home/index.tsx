@@ -8,6 +8,7 @@ import axios from "axios";
 import CryptoTable from "./CryptoTable";
 import GlobalContext from "@/context/store";
 import YieldInfo from "./YieldInfo";
+import TokenCards from "./TokenCards";
 
 export default function Page() {
   const { selectedChain } = useContext(GlobalContext);
@@ -16,6 +17,8 @@ export default function Page() {
     <div className="grow w-full">
       {selectedChain === "movement" || selectedChain === "sui" ? (
         <CryptoTable />
+      ) : selectedChain === "viction" ? (
+        <TokenCards />
       ) : (
         <YieldInfo />
       )}

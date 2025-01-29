@@ -26,6 +26,7 @@ import {
   ChartColumnIncreasingIcon,
   DatabaseIcon,
   FileChartColumnIncreasingIcon,
+  LogInIcon,
 } from "lucide-react";
 import { NavMain } from "@/components/layout/Sidebar/NavMain";
 import { NavUser } from "@/components/layout/Sidebar/nav-user";
@@ -69,7 +70,7 @@ export function AppSidebar() {
       <div className="md:hidden z-50">
         <Sheet>
           <SheetTrigger asChild>
-            <button className="fixed top-4 left-4 z-50 p-2 bg-primary rounded-lg hover:bg-primary/90">
+            <button className="fixed top-4 left-4 z-50 p-2 bg-[#112548] rounded-lg hover:bg-primary/90 border">
               <Menu className="h-6 w-6 text-primary-foreground" />
             </button>
           </SheetTrigger>
@@ -97,7 +98,7 @@ export function AppSidebar() {
           h-screen
         `}
         >
-          <button
+          {/* <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="absolute -right-3 top-1/2 bg-bluesky hover:bg-blue-300 rounded-full p-1 z-10"
           >
@@ -106,7 +107,7 @@ export function AppSidebar() {
             ) : (
               <ChevronLeft className="h-4 w-4 text-primary-foreground" />
             )}
-          </button>
+          </button> */}
 
           <div className="flex flex-col h-full sidebar">
             <DesktopSidebarContent isCollapsed={isCollapsed} />
@@ -119,6 +120,8 @@ export function AppSidebar() {
 
 function MobileSidebarContent() {
   const { selectedChain, setSelectedChain } = useContext(GlobalContext);
+  const { selectedNav, setSelectedNav } = useContext(GlobalContext);
+
   return (
     <>
       <div className="p-4">
@@ -131,30 +134,37 @@ function MobileSidebarContent() {
       <div className="flex-1 overflow-y-auto p-4">
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/dashboard">
-                  <PanelLeftIcon />
-                  <span className="text-base">Dashboard</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/watchlist">
-                  <ListCheckIcon />
-                  <span className="text-base">Watchlist</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/tracker">
-                  <ScanSearchIcon />
-                  <span className="text-base">Portfolio Tracker</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {mainNav.map((nav) => (
+              <SidebarMenuItem
+                key={nav.name}
+                className={`${selectedNav === nav.name ? "selected-nav" : ""}`}
+              >
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => setSelectedNav(nav.name)}
+                >
+                  <a
+                    href={nav.url}
+                    className={
+                      selectedNav === nav.name
+                        ? "text-bluesky"
+                        : "text-gray-500"
+                    }
+                  >
+                    {nav.icon}
+                    <span
+                      className={
+                        selectedNav === nav.name
+                          ? "text-gray-400"
+                          : "text-gray-500"
+                      }
+                    >
+                      {nav.name}
+                    </span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
         <SidebarSeparator className="my-4 bg-itemborder" />
@@ -179,7 +189,8 @@ function MobileSidebarContent() {
 }
 
 function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
-  const { selectedNav, setSelectedNav } = useContext(GlobalContext);
+  const { selectedNav, setSelectedNav, isLogged, setIsLogged } =
+    useContext(GlobalContext);
   return (
     <>
       <div className="py-4 mx-auto">
@@ -231,18 +242,36 @@ function DesktopSidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
         {/* <NavUser user={data.user} showDetails={!isCollapsed} /> */}
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="text-gray-400">
-                <SlidersVerticalIcon />
-                <span>Settings</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="text-gray-400">
-                <LogOutIcon />
-                <span>Logout</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {isLogged && (
+              <>
+                <SidebarMenuItem>
+                  <SidebarMenuButton className="text-gray-400">
+                    <SlidersVerticalIcon />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className="text-gray-400"
+                    onClick={() => setIsLogged(false)}
+                  >
+                    <LogOutIcon />
+                    <span>Logout</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </>
+            )}
+            {!isLogged && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  className="text-gray-400"
+                  onClick={() => setIsLogged(true)}
+                >
+                  <LogInIcon />
+                  <span>Login</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </div>
@@ -486,6 +515,16 @@ const chains = [
     value: "movement",
   },
   {
+    name: "Sui",
+    logo: "/chains/sui.svg",
+    value: "sui",
+  },
+  {
+    name: "Viction",
+    logo: "/chains/viction.svg",
+    value: "viction",
+  },
+  {
     name: "Kaia",
     logo: "/chains/kaia.svg",
     value: "kaia",
@@ -516,18 +555,13 @@ const chains = [
     logo: "/chains/ancient8.svg",
     value: "ancient8",
   },
-  {
-    name: "Sui",
-    logo: "/chains/sui.svg",
-    value: "sui",
-  },
 ];
 
 const mainNav = [
   {
     icon: <FlameIcon />,
     name: "Meme",
-    url: "#",
+    url: "/",
   },
   {
     icon: <UsersIcon />,
