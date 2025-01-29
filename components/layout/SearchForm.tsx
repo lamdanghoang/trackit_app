@@ -59,7 +59,18 @@ const exchangeData = [
   },
 ];
 
+interface ResponseProps {
+  srcAsset: string;
+  dstAsset: string;
+  srcAmount: string;
+  dstAmount: string;
+  feeAmount: string;
+  isFeeIn: boolean;
+  paths: Path[][];
+}
+
 interface Path {
+  poolId: string;
   source: string;
   srcAsset: string;
   dstAsset: string;
@@ -93,20 +104,17 @@ export default function SearchForm() {
         throw new Error("Please enter a token address");
       }
       const response = await fetch(
-        `https://trackit-be.vercel.app/v1/token/route?token=${encodeURIComponent(
-          searchValue
-        )}`
+        `https://trackit-be.vercel.app/v1/token/route?src_asset=${searchValue}&dst_asset=${searchValue}`
       );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ResponseProps = await response.json();
 
       if (!data.paths) return;
-
-      setResults(data.paths);
+      setResults(data.paths[0]);
       setIsOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch data");

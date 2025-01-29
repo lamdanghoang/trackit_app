@@ -18,6 +18,7 @@ import {
   ZapIcon,
   FilterIcon,
   FilterXIcon,
+  ClipboardCheckIcon,
 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ import Image from "next/image";
 import Twitter from "@/components/icons/twitter";
 
 export default function CryptoTable() {
-  const { setSelectedToken } = useContext(GlobalContext);
+  const { selectedToken, setSelectedToken } = useContext(GlobalContext);
   const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export default function CryptoTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedTime, setSelectedTime] = useState<string>("1m");
   const [isFiltered, setIsFiltered] = useState<boolean>(false);
+  const [copiedTokenIds, setCopiedTokenIds] = useState<Set<string>>(new Set());
   const itemsPerPage = 8;
 
   const clickHandler = (token: TokenInfo) => {
@@ -67,6 +69,19 @@ export default function CryptoTable() {
     setSelectedToken(token);
     try {
       await navigator.clipboard.writeText(token.mintAddr);
+      setCopiedTokenIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(token.id);
+        return newSet;
+      });
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedTokenIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(token.id);
+          return newSet;
+        });
+      }, 2000);
     } catch (error) {
       console.error("Cannot copy address");
     }
@@ -227,8 +242,19 @@ export default function CryptoTable() {
                             <span className="font-semibold text-gray-400">
                               {token.tickerSymbol}
                             </span>
-                            <button className="text-gray-500">
-                              <CopyIcon width={12} height={12} />
+                            <button
+                              className={`${
+                                copiedTokenIds.has(token.id)
+                                  ? "text-green-500"
+                                  : "text-gray-500"
+                              }`}
+                              onClick={() => copyAddress(token)}
+                            >
+                              {!copiedTokenIds.has(token.id) ? (
+                                <CopyIcon width={12} height={12} />
+                              ) : (
+                                <ClipboardCheckIcon width={12} height={12} />
+                              )}
                             </button>
                           </div>
                           <div className="flex items-center gap-2">
