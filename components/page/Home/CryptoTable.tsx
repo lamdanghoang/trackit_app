@@ -33,7 +33,7 @@ import {
 import { useRouter } from "next/navigation";
 import { TokenInfo } from "@/types/interface";
 import { formatAddress, formatVolume } from "@/types/helper";
-import { format } from "date-fns";
+import { format, formatDistanceToNowStrict } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import GlobalContext from "@/context/store";
 import axios from "axios";
@@ -50,7 +50,7 @@ import Twitter from "@/components/icons/twitter";
 
 export default function CryptoTable() {
   const { selectedToken, setSelectedToken } = useContext(GlobalContext);
-  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>([]);
+  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>(intitialList);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -100,7 +100,7 @@ export default function CryptoTable() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://trackit-be.vercel.app/v1/token/list?limit=${itemsPerPage}&offset=${currentPage}`
+          `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/token/list?limit=${itemsPerPage}&offset=${currentPage}`
         );
         // console.log(response);
         if (response.status === 200) {
@@ -177,7 +177,7 @@ export default function CryptoTable() {
                 </TableHead>
                 <TableHead className="min-w-32 text-gray-400 font-medium">
                   <button className="flex gap-1 items-center">
-                    Created On <ChevronsUpDownIcon width={14} height={14} />
+                    Age <ChevronsUpDownIcon width={14} height={14} />
                   </button>
                 </TableHead>
                 <TableHead className="min-w-28 text-gray-400 font-medium">
@@ -293,9 +293,21 @@ export default function CryptoTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-green-400 font-medium text-[15px]">
-                        {format(new Date(token.cdate), "yyyy-MM-dd")}
-                      </span>
+                      <Tooltip>
+                        {/* Wrap the date cell content with a Tooltip */}
+                        <TooltipTrigger asChild>
+                          {/* Use TooltipTrigger for accessibility */}
+                          <span className="text-green-400 font-medium text-[15px] cursor-pointer">
+                            {/* Make it look clickable */}
+                            {calculateDaysSinceCreation(token.cdate)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-gray-50 text-gray-900">
+                          {/* Tooltip content shows the original date */}
+                          {format(new Date(token.cdate), "yyyy-MM-dd")}
+                          {/* Format the date as you like */}
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                     <TableCell>
                       <span className="text-gray-400 font-bold text-[15px]">
@@ -460,7 +472,7 @@ export default function CryptoTable() {
 }
 
 const LoadingRow = () => (
-  <TableRow className="border-itemborder bg-[#0E0F13]">
+  <TableRow className="border-itemborder bg">
     {/* Token Column */}
     <TableCell>
       <div className="flex items-center gap-2">
@@ -585,3 +597,189 @@ const PriceChangeCell = ({ value }: { value: number }) => (
 );
 
 const timeFilters = ["1m", "5m", "1h", "6h", "24h"];
+
+const intitialList = [
+  {
+    id: "194276b0-e001-11ef-b8c0-4d00584636d5",
+    name: "Karina",
+    tickerSymbol: "KARINA",
+    desc: null,
+    creator:
+      "0x6c609ba89c1fbb827fe4e315e0ee4726246de43e5e75a40e18c2e918e9af2ca2",
+    mintAddr:
+      "0x6c609ba89c1fbb827fe4e315e0ee4726246de43e5e75a40e18c2e918e9af2ca2::KARINA::KARINA",
+    image:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1738348079325-501195195949017f54ab79e6cfe40e63.jpg",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-01-31T18:27:59.000Z",
+    creatorName: "Movement Diddy",
+    creatorWalletAddr:
+      "0x6c609ba89c1fbb827fe4e315e0ee4726246de43e5e75a40e18c2e918e9af2ca2",
+    creatorAvatar:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1730711933101-download.jpeg",
+    replies: 0,
+    marketCapUSD: 52959.2714075277,
+    trades: [],
+    aptosUSDPrice: 529.592714075277,
+    holderPercentage: "1",
+    bondinCurvepercentage: 0,
+    seeded: null,
+  },
+  {
+    id: "a0110fc0-df5d-11ef-b8c0-4d00584636d5",
+    name: "KUENTOL",
+    tickerSymbol: "KUENTOL",
+    desc: "NOTHING ",
+    creator:
+      "0x162bf8aa221f53df07614478cdbfeb9b415183fba98bc02df7195a224a9e25ab",
+    mintAddr:
+      "0x162bf8aa221f53df07614478cdbfeb9b415183fba98bc02df7195a224a9e25ab::KUENTOL::KUENTOL",
+    image:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1738277867896-240715-NewJeans-Hanni-Instagram-Update-documents-2.jpeg",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-01-30T22:57:48.000Z",
+    creatorName: "tragicmolester",
+    creatorWalletAddr:
+      "0x162bf8aa221f53df07614478cdbfeb9b415183fba98bc02df7195a224a9e25ab",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 6372353.06198591,
+    trades: [
+      {
+        side: "BUY",
+        count: "2",
+        volume: "1007.000000000000000000",
+      },
+    ],
+    aptosUSDPrice: 529.592714075277,
+    holderPercentage: "1",
+    bondinCurvepercentage: 249.2325,
+    seeded: "IN_PROGRESS",
+  },
+  {
+    id: "f9176470-de04-11ef-b8c0-4d00584636d5",
+    name: "Micky ",
+    tickerSymbol: "MICKY",
+    desc: null,
+    creator:
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644",
+    mintAddr:
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MICKY::MICKY",
+    image:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1738129841016-Screenshot_2025-01-24_at_2.03.24_PM.png",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-01-29T05:50:41.000Z",
+    creatorName: "finishingcustodian",
+    creatorWalletAddr:
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 63929.6935066372,
+    trades: [
+      {
+        side: "BUY",
+        count: "1",
+        volume: "9.970000000000000000",
+      },
+    ],
+    aptosUSDPrice: 529.592714075277,
+    holderPercentage: "2",
+    bondinCurvepercentage: 2.467575,
+    seeded: null,
+  },
+  {
+    id: "9839d8d0-dde2-11ef-b8c0-4d00584636d5",
+    name: "LPWEB",
+    tickerSymbol: "LPWEB",
+    desc: "LPWEB",
+    creator:
+      "0x3186a5a0185043dd27fb28b45520fc2c3ddc708ac5d565be88561056a5c77d8f",
+    mintAddr:
+      "0x3186a5a0185043dd27fb28b45520fc2c3ddc708ac5d565be88561056a5c77d8f::LPWEB::LPWEB",
+    image: "https://hatchy.s3.us-east-2.amazonaws.com/1738115075635-usc.gif",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-01-29T01:44:35.000Z",
+    creatorName: "contractualself",
+    creatorWalletAddr:
+      "0x3186a5a0185043dd27fb28b45520fc2c3ddc708ac5d565be88561056a5c77d8f",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 64016.842309759,
+    trades: [
+      {
+        side: "BUY",
+        count: "3",
+        volume: "10.070697000000000000",
+      },
+      {
+        side: "SELL",
+        count: "1",
+        volume: "0.024691100000000000",
+      },
+    ],
+    aptosUSDPrice: 529.592714075277,
+    holderPercentage: "2",
+    bondinCurvepercentage: 2.4863247325,
+    seeded: null,
+  },
+  {
+    id: "06c50fa0-dde2-11ef-b8c0-4d00584636d5",
+    name: "RZRWEB",
+    tickerSymbol: "RZRWEB",
+    desc: "RZRWEB",
+    creator:
+      "0x085ac0fb7f5fc94debe86ba9490dd76855bbec19d78c42e40075deb7f7c94081",
+    mintAddr:
+      "0x085ac0fb7f5fc94debe86ba9490dd76855bbec19d78c42e40075deb7f7c94081::RZRWEB::RZRWEB",
+    image: "https://hatchy.s3.us-east-2.amazonaws.com/1738114831559-usc.gif",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-01-29T01:40:31.000Z",
+    creatorName: "astonishingpredecessor",
+    creatorWalletAddr:
+      "0x085ac0fb7f5fc94debe86ba9490dd76855bbec19d78c42e40075deb7f7c94081",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 64016.0649293167,
+    trades: [
+      {
+        side: "BUY",
+        count: "3",
+        volume: "10.069799700000000000",
+      },
+      {
+        side: "SELL",
+        count: "1",
+        volume: "0.024471550000000000",
+      },
+    ],
+    aptosUSDPrice: 529.592714075277,
+    holderPercentage: "2",
+    bondinCurvepercentage: 2.48615754,
+    seeded: null,
+  },
+];
+
+const calculateDaysSinceCreation = (cdate: string): string => {
+  try {
+    const date = new Date(cdate);
+    return formatDistanceToNowStrict(date, { addSuffix: false }); // Use strict mode
+  } catch (error) {
+    console.error("Error parsing date:", error);
+    return "Invalid date"; // Or a suitable fallback
+  }
+};

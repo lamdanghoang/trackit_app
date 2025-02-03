@@ -15,7 +15,9 @@ export default function Page() {
 
   return (
     <div className="grow w-full">
-      {selectedChain === "movement" || selectedChain === "sui" ? (
+      {selectedChain === "movement" ||
+      selectedChain === "sui" ||
+      selectedChain === "aptos" ? (
         <CryptoTable />
       ) : selectedChain === "viction" ? (
         <TokenCards />
