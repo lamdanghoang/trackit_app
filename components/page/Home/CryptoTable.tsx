@@ -19,6 +19,8 @@ import {
   FilterIcon,
   FilterXIcon,
   ClipboardCheckIcon,
+  SparklesIcon,
+  Loader2,
 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -31,7 +33,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
-import { TokenInfo } from "@/types/interface";
+import {
+  PricePredictionData,
+  TokenInfo,
+  TokenInfoSui,
+} from "@/types/interface";
 import { formatAddress, formatVolume } from "@/types/helper";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { useContext, useEffect, useState } from "react";
@@ -47,10 +53,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Twitter from "@/components/icons/twitter";
+import PricePredictionModal from "./PricePrediction";
 
 export default function CryptoTable() {
-  const { selectedToken, setSelectedToken } = useContext(GlobalContext);
-  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>(intitialList);
+  const { setSelectedToken, selectedChain } = useContext(GlobalContext);
+  const [tokenInfoList, setTokenInfoList] = useState<
+    TokenInfo[] | TokenInfoSui[]
+  >(intitialList);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -58,27 +67,47 @@ export default function CryptoTable() {
   const [selectedTime, setSelectedTime] = useState<string>("1m");
   const [isFiltered, setIsFiltered] = useState<boolean>(false);
   const [copiedTokenIds, setCopiedTokenIds] = useState<Set<string>>(new Set());
+  const [isPredictionOpen, setIsPredictionOpen] = useState(false);
+  const [isPredictionLoading, setIsPredictionLoading] = useState(false);
+  const [pricePrediction, setPricePrediction] =
+    useState<PricePredictionData | null>(null);
   const itemsPerPage = 8;
 
-  const clickHandler = (token: TokenInfo) => {
+  const clickHandler = (token: TokenInfo | TokenInfoSui) => {
     setSelectedToken(token);
-    router.push(`/token/${token.mintAddr}`);
+    if (isTokenInfo(token)) {
+      router.push(`/token/${token.mintAddr}`);
+    } else {
+      router.push(`/token/${token.token_address}`);
+    }
   };
 
-  const copyAddress = async (token: TokenInfo) => {
+  const copyAddress = async (token: TokenInfo | TokenInfoSui) => {
     setSelectedToken(token);
     try {
-      await navigator.clipboard.writeText(token.mintAddr);
+      if (isTokenInfo(token)) {
+        await navigator.clipboard.writeText(token.mintAddr);
+      } else {
+        await navigator.clipboard.writeText(token.token_address);
+      }
       setCopiedTokenIds((prev) => {
         const newSet = new Set(prev);
-        newSet.add(token.id);
+        if (isTokenInfo(token)) {
+          newSet.add(token.id);
+        } else {
+          newSet.add(token.symbol);
+        }
         return newSet;
       });
       // Reset the copied state after 2 seconds
       setTimeout(() => {
         setCopiedTokenIds((prev) => {
           const newSet = new Set(prev);
-          newSet.delete(token.id);
+          if (isTokenInfo(token)) {
+            newSet.delete(token.id);
+          } else {
+            newSet.delete(token.symbol);
+          }
           return newSet;
         });
       }, 2000);
@@ -95,16 +124,43 @@ export default function CryptoTable() {
     });
   };
 
+  const predictionHandler = async (name: string, symbol: string) => {
+    setIsPredictionLoading(true);
+    setIsPredictionOpen(true);
+    const url = "https://api.trackit-app.xyz/v1/agent/price_prediction";
+    const value = {
+      name,
+      symbol,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(value),
+      });
+
+      const result = await response.json();
+      console.log(result);
+      setPricePrediction(result);
+      setIsPredictionLoading(false);
+    } catch (error) {
+      console.log("Failed to prediction.");
+    }
+  };
+
   useEffect(() => {
     const fetchTokenInfoList = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/token/list?limit=${itemsPerPage}&offset=${currentPage}`
+          `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/token/list?limit=${itemsPerPage}&offset=${currentPage}&chain=${selectedChain}`
         );
         // console.log(response);
         if (response.status === 200) {
-          const data: TokenInfo[] = response.data;
+          const data: TokenInfo[] | TokenInfoSui[] = response.data;
           setTokenInfoList(data);
         }
       } catch (err) {
@@ -115,7 +171,7 @@ export default function CryptoTable() {
     };
 
     fetchTokenInfoList();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, selectedChain]);
 
   return (
     <div className="w-full h-[calc(100vh-6rem)] text-gray-100 overflow-hidden flex flex-col shadow-lg">
@@ -225,137 +281,428 @@ export default function CryptoTable() {
             </TableHeader>
             <TableBody>
               {isLoading &&
-                [...Array(6)].map((_, index) => <LoadingRow key={index} />)}
+                [...Array(10)].map((_, index) => <LoadingRow key={index} />)}
               {!isLoading &&
-                tokenInfoList.map((token: TokenInfo) => (
-                  <TableRow key={token.id} className="hover:bg-blue-900">
-                    <TableCell>
-                      {/* Token info cell content */}
+                tokenInfoList.map((token: TokenInfo | TokenInfoSui) => {
+                  if (isTokenInfo(token)) {
+                    return (
+                      <TableRow key={token.id} className="hover:bg-blue-900">
+                        <TableCell>
+                          {/* Token info cell content */}
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={token.image}
+                              alt=""
+                              className="h-8 w-8 rounded-full"
+                            />
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-gray-400">
+                                  {token.tickerSymbol}
+                                </span>
+                                <button
+                                  className={`${
+                                    copiedTokenIds.has(token.id)
+                                      ? "text-green-500"
+                                      : "text-gray-500"
+                                  }`}
+                                  onClick={() => copyAddress(token)}
+                                >
+                                  {!copiedTokenIds.has(token.id) ? (
+                                    <CopyIcon width={12} height={12} />
+                                  ) : (
+                                    <ClipboardCheckIcon
+                                      width={12}
+                                      height={12}
+                                    />
+                                  )}
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">
+                                  {token.creator
+                                    ? formatAddress(token.creator)
+                                    : formatAddress(token.creator)}
+                                </span>
+                                <button className="text-gray-500">
+                                  <Twitter />
+                                </button>
+                                <button className="text-gray-500">
+                                  <GlobeIcon width={12} height={12} />
+                                </button>
+                                <button className="text-gray-500">
+                                  <SendIcon width={12} height={12} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Image
+                              src="/dexes/routex.png"
+                              alt="routex"
+                              width={32}
+                              height={32}
+                              className="rounded-full"
+                            />
+                            <Image
+                              src="/dexes/warpgate.png"
+                              alt="routex"
+                              width={32}
+                              height={32}
+                              className="rounded-full -ml-4"
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            {/* Wrap the date cell content with a Tooltip */}
+                            <TooltipTrigger asChild>
+                              {/* Use TooltipTrigger for accessibility */}
+                              <span className="text-green-400 font-medium text-[15px] cursor-pointer">
+                                {/* Make it look clickable */}
+                                {calculateDaysSinceCreation(token.cdate)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-50 text-gray-900">
+                              {/* Tooltip content shows the original date */}
+                              {format(new Date(token.cdate), "yyyy-MM-dd")}
+                              {/* Format the date as you like */}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            ${token.aptosUSDPrice.toFixed(2)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-semibold text-[15px]">
+                            {formatVolume(token.marketCapUSD)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            5%
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            10
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sky-600 font-bold text-[15px]">
+                            ${formatVolume(15000000)}
+                          </span>
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            false ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          -1.1%
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            false ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          -0.5%
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            true ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          5.09%
+                        </TableCell>
+                        <TableCell className="flex items-center gap-3">
+                          <Button
+                            size="sm"
+                            onClick={() => clickHandler(token)}
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                          >
+                            <Image
+                              src="/flash.png"
+                              alt="flash"
+                              width={20}
+                              height={20}
+                            />
+                            <span className="text-[15px] font-medium">Buy</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              predictionHandler(token.name, token.tickerSymbol)
+                            }
+                            className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
+                          >
+                            <SparklesIcon />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  } else {
+                    return (
+                      <TableRow
+                        key={token.symbol}
+                        className="hover:bg-blue-900"
+                      >
+                        <TableCell>
+                          {/* Token info cell content */}
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={token.token_metadata.iconUrl}
+                              alt=""
+                              className="h-8 w-8 rounded-full"
+                            />
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-gray-400">
+                                  {token.token_metadata.symbol}
+                                </span>
+                                <button
+                                  className={`${
+                                    copiedTokenIds.has(token.token_address)
+                                      ? "text-green-500"
+                                      : "text-gray-500"
+                                  }`}
+                                  onClick={() => copyAddress(token)}
+                                >
+                                  {!copiedTokenIds.has(token.symbol) ? (
+                                    <CopyIcon width={12} height={12} />
+                                  ) : (
+                                    <ClipboardCheckIcon
+                                      width={12}
+                                      height={12}
+                                    />
+                                  )}
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">
+                                  {formatAddress(token.created_by)}
+                                </span>
+                                <button className="text-gray-500">
+                                  <Twitter />
+                                </button>
+                                <button className="text-gray-500">
+                                  <GlobeIcon width={12} height={12} />
+                                </button>
+                                <button className="text-gray-500">
+                                  <SendIcon width={12} height={12} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Image
+                              src="/dexes/routex.png"
+                              alt="routex"
+                              width={32}
+                              height={32}
+                              className="rounded-full"
+                            />
+                            <Image
+                              src="/dexes/warpgate.png"
+                              alt="routex"
+                              width={32}
+                              height={32}
+                              className="rounded-full -ml-4"
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            {/* Wrap the date cell content with a Tooltip */}
+                            <TooltipTrigger asChild>
+                              {/* Use TooltipTrigger for accessibility */}
+                              <span className="text-green-400 font-medium text-[15px] cursor-pointer">
+                                {/* Make it look clickable */}
+                                {calculateDaysSinceCreation(token.created_at)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-50 text-gray-900">
+                              {/* Tooltip content shows the original date */}
+                              {format(new Date(token.created_at), "yyyy-MM-dd")}
+                              {/* Format the date as you like */}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            ${token.token_price_usd.toFixed(2)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-semibold text-[15px]">
+                            {formatVolume(token.market_cap_usd)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            5%
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-gray-400 font-bold text-[15px]">
+                            10
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sky-600 font-bold text-[15px]">
+                            ${formatVolume(15000000)}
+                          </span>
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            false ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          -1.1%
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            false ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          -0.5%
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold text-[15px] ${
+                            true ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          5.09%
+                        </TableCell>
+                        <TableCell className="flex items-center gap-3">
+                          <Button
+                            size="sm"
+                            onClick={() => clickHandler(token)}
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                          >
+                            <Image
+                              src="/flash.png"
+                              alt="flash"
+                              width={20}
+                              height={20}
+                            />
+                            <span className="text-[15px] font-medium">Buy</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              predictionHandler(
+                                token.token_metadata.name,
+                                token.token_metadata.symbol
+                              )
+                            }
+                            className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
+                          >
+                            <SparklesIcon />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                })}
+            </TableBody>
+          </Table>
+          {isPredictionLoading && !pricePrediction && (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="w-8 h-8 animate-spin text-yellow-500" />
+            </div>
+          )}
+          {!isPredictionLoading && pricePrediction && (
+            <PricePredictionModal
+              isOpen={isPredictionOpen}
+              onClose={() => setIsPredictionOpen(false)}
+              data={pricePrediction}
+            />
+          )}
+          {/* Mobile View */}
+          <ul className="md:hidden divide-y divide-itemborder">
+            {!isLoading &&
+              tokenInfoList.map((token) => {
+                if (isTokenInfo(token)) {
+                  return (
+                    <li key={token.id} className="p-4 hover:bg-item/50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={token.image}
+                            alt=""
+                            className="h-8 w-8 rounded-full"
+                          />
+                          <div>
+                            <div className="font-semibold">
+                              {token.tickerSymbol}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {formatAddress(token.creator)}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => clickHandler(token)}
+                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50"
+                        >
+                          <Image
+                            src="/flash.png"
+                            alt="flash"
+                            width={20}
+                            height={20}
+                          />
+                          <span className="text-[15px] font-medium">Buy</span>
+                        </Button>
+                      </div>
+                      <dl className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <dt className="text-gray-400">Price</dt>
+                          <dd className="font-medium">
+                            ${token.aptosUSDPrice.toFixed(2)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-gray-400">Market Cap</dt>
+                          <dd>{formatVolume(token.marketCapUSD)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-gray-400">24h Change</dt>
+                          <dd
+                            className={true ? "text-green-500" : "text-red-500"}
+                          >
+                            2.99%
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-gray-400">Volume</dt>
+                          <dd>{formatVolume(15000000)}</dd>
+                        </div>
+                      </dl>
+                    </li>
+                  );
+                } else {
+                  <li key={token.symbol} className="p-4 hover:bg-item/50">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <img
-                          src={token.image}
+                          src={token.token_metadata.iconUrl}
                           alt=""
                           className="h-8 w-8 rounded-full"
                         />
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-400">
-                              {token.tickerSymbol}
-                            </span>
-                            <button
-                              className={`${
-                                copiedTokenIds.has(token.id)
-                                  ? "text-green-500"
-                                  : "text-gray-500"
-                              }`}
-                              onClick={() => copyAddress(token)}
-                            >
-                              {!copiedTokenIds.has(token.id) ? (
-                                <CopyIcon width={12} height={12} />
-                              ) : (
-                                <ClipboardCheckIcon width={12} height={12} />
-                              )}
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">
-                              {formatAddress(token.creator)}
-                            </span>
-                            <button className="text-gray-500">
-                              <Twitter />
-                            </button>
-                            <button className="text-gray-500">
-                              <GlobeIcon width={12} height={12} />
-                            </button>
-                            <button className="text-gray-500">
-                              <SendIcon width={12} height={12} />
-                            </button>
+                        <div>
+                          <div className="font-semibold">{token.symbol}</div>
+                          <div className="text-xs text-gray-400">
+                            {formatAddress(token.created_by)}
                           </div>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Image
-                          src="/dexes/routex.png"
-                          alt="routex"
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                        <Image
-                          src="/dexes/warpgate.png"
-                          alt="routex"
-                          width={32}
-                          height={32}
-                          className="rounded-full -ml-4"
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip>
-                        {/* Wrap the date cell content with a Tooltip */}
-                        <TooltipTrigger asChild>
-                          {/* Use TooltipTrigger for accessibility */}
-                          <span className="text-green-400 font-medium text-[15px] cursor-pointer">
-                            {/* Make it look clickable */}
-                            {calculateDaysSinceCreation(token.cdate)}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-gray-50 text-gray-900">
-                          {/* Tooltip content shows the original date */}
-                          {format(new Date(token.cdate), "yyyy-MM-dd")}
-                          {/* Format the date as you like */}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-gray-400 font-bold text-[15px]">
-                        ${token.aptosUSDPrice.toFixed(2)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-gray-400 font-semibold text-[15px]">
-                        {formatVolume(token.marketCapUSD)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-gray-400 font-bold text-[15px]">
-                        5%
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-gray-400 font-bold text-[15px]">
-                        10
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sky-600 font-bold text-[15px]">
-                        ${formatVolume(15000000)}
-                      </span>
-                    </TableCell>
-                    <TableCell
-                      className={`font-semibold text-[15px] ${
-                        false ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      -1.1%
-                    </TableCell>
-                    <TableCell
-                      className={`font-semibold text-[15px] ${
-                        false ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      -0.5%
-                    </TableCell>
-                    <TableCell
-                      className={`font-semibold text-[15px] ${
-                        true ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      5.09%
-                    </TableCell>
-                    <TableCell>
                       <Button
                         size="sm"
                         onClick={() => clickHandler(token)}
@@ -369,104 +716,66 @@ export default function CryptoTable() {
                         />
                         <span className="text-[15px] font-medium">Buy</span>
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-
-          {/* Mobile View */}
-          <ul className="md:hidden divide-y divide-itemborder">
-            {!isLoading &&
-              tokenInfoList.map((token) => (
-                <li key={token.id} className="p-4 hover:bg-item/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={token.image}
-                        alt=""
-                        className="h-8 w-8 rounded-full"
-                      />
+                    </div>
+                    <dl className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <div className="font-semibold">
-                          {token.tickerSymbol}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {formatAddress(token.creator)}
-                        </div>
+                        <dt className="text-gray-400">Price</dt>
+                        <dd className="font-medium">
+                          ${token.token_price_usd.toFixed(2)}
+                        </dd>
                       </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => clickHandler(token)}
-                      className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50"
-                    >
-                      <Image
-                        src="/flash.png"
-                        alt="flash"
-                        width={20}
-                        height={20}
-                      />
-                      <span className="text-[15px] font-medium">Buy</span>
-                    </Button>
-                  </div>
-                  <dl className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <dt className="text-gray-400">Price</dt>
-                      <dd className="font-medium">
-                        ${token.aptosUSDPrice.toFixed(2)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-gray-400">Market Cap</dt>
-                      <dd>{formatVolume(token.marketCapUSD)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-gray-400">24h Change</dt>
-                      <dd className={true ? "text-green-500" : "text-red-500"}>
-                        2.99%
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-gray-400">Volume</dt>
-                      <dd>{formatVolume(15000000)}</dd>
-                    </div>
-                  </dl>
-                </li>
-              ))}
+                      <div>
+                        <dt className="text-gray-400">Market Cap</dt>
+                        <dd>{formatVolume(token.market_cap_usd)}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-400">24h Change</dt>
+                        <dd
+                          className={true ? "text-green-500" : "text-red-500"}
+                        >
+                          2.99%
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-gray-400">Volume</dt>
+                        <dd>{formatVolume(15000000)}</dd>
+                      </div>
+                    </dl>
+                  </li>;
+                }
+              })}
           </ul>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
 
       {/* Pagination */}
-      {!isLoading && (
-        <div className="flex justify-between items-center p-4 border-t border-itemborder">
-          <span className="text-sm text-gray-400 hidden sm:inline">
-            Showing {itemsPerPage} tokens per page
-          </span>
-          <div className="flex items-center gap-2 mx-auto sm:mx-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-8 text-gray-800"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-medium px-2">Page {currentPage}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="h-8 text-gray-800"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+
+      <div className="flex justify-between items-center p-4 border-t border-itemborder">
+        <span className="text-sm text-gray-400 hidden sm:inline">
+          Showing {itemsPerPage} tokens per page
+        </span>
+        <div className="flex items-center gap-2 mx-auto sm:mx-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="h-8 text-gray-800"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm font-medium px-2">Page {currentPage}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="h-8 text-gray-800"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -783,3 +1092,7 @@ const calculateDaysSinceCreation = (cdate: string): string => {
     return "Invalid date"; // Or a suitable fallback
   }
 };
+
+function isTokenInfo(token: TokenInfo | TokenInfoSui): token is TokenInfo {
+  return "tickerSymbol" in token; // Check for a property unique to TokenInfo
+}
