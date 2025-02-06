@@ -38,7 +38,7 @@ import {
   TokenInfo,
   TokenInfoSui,
 } from "@/types/interface";
-import { formatAddress, formatVolume } from "@/types/helper";
+import { formatAddress, formatTokenPrice, formatVolume } from "@/types/helper";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import GlobalContext from "@/context/store";
@@ -485,15 +485,48 @@ export default function CryptoTable() {
                                 <span className="text-xs text-gray-400">
                                   {formatAddress(token.created_by)}
                                 </span>
-                                <button className="text-gray-500">
-                                  <Twitter />
-                                </button>
-                                <button className="text-gray-500">
-                                  <GlobeIcon width={12} height={12} />
-                                </button>
-                                <button className="text-gray-500">
-                                  <SendIcon width={12} height={12} />
-                                </button>
+                                {token.twitter && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.twitter,
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <Twitter />
+                                  </button>
+                                )}
+                                {token.website && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.website,
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <GlobeIcon width={12} height={12} />
+                                  </button>
+                                )}
+                                {token.telegram && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.telegram,
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <SendIcon width={12} height={12} />
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -535,7 +568,10 @@ export default function CryptoTable() {
                         </TableCell>
                         <TableCell>
                           <span className="text-gray-400 font-bold text-[15px]">
-                            ${token.token_price_usd.toFixed(2)}
+                            $
+                            {formatTokenPrice(token.token_price_usd, {
+                              showCurrencySymbol: false,
+                            })}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -555,7 +591,7 @@ export default function CryptoTable() {
                         </TableCell>
                         <TableCell>
                           <span className="text-sky-600 font-bold text-[15px]">
-                            ${formatVolume(15000000)}
+                            ${formatVolume(+token.volume_usd)}
                           </span>
                         </TableCell>
                         <TableCell
