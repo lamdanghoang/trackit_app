@@ -38,7 +38,12 @@ import {
   TokenInfo,
   TokenInfoSui,
 } from "@/types/interface";
-import { formatAddress, formatTokenPrice, formatVolume } from "@/types/helper";
+import {
+  formatAddress,
+  formatTokenPrice,
+  formatVolume,
+  isTokenInfo,
+} from "@/types/helper";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import GlobalContext from "@/context/store";
@@ -54,6 +59,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Twitter from "@/components/icons/twitter";
 import PricePredictionModal from "./PricePrediction";
+import { PriceFormatter } from "../PriceFormatter";
 
 export default function CryptoTable() {
   const { setSelectedToken, selectedChain } = useContext(GlobalContext);
@@ -324,15 +330,50 @@ export default function CryptoTable() {
                                     ? formatAddress(token.creator)
                                     : formatAddress(token.creator)}
                                 </span>
-                                <button className="text-gray-500">
-                                  <Twitter />
-                                </button>
-                                <button className="text-gray-500">
-                                  <GlobeIcon width={12} height={12} />
-                                </button>
-                                <button className="text-gray-500">
-                                  <SendIcon width={12} height={12} />
-                                </button>
+                                {token.website && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.website ||
+                                          "https://www.movementnetwork.xyz/",
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <GlobeIcon width={12} height={12} />
+                                  </button>
+                                )}
+                                {token.twitter && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.twitter || "https://x.com/",
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <Twitter />
+                                  </button>
+                                )}
+                                {token.telegram && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.telegram ||
+                                          "https://telegram.org",
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <SendIcon width={12} height={12} />
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -373,9 +414,19 @@ export default function CryptoTable() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            ${token.aptosUSDPrice.toFixed(2)}
-                          </span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="flex text-gray-400 font-bold text-[15px]">
+                                $
+                                {token.aptosUSDPrice && (
+                                  <PriceFormatter price={token.aptosUSDPrice} />
+                                )}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-50 text-gray-900">
+                              {formatTokenPrice(token.aptosUSDPrice)}
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>
                           <span className="text-gray-400 font-semibold text-[15px]">
@@ -485,20 +536,6 @@ export default function CryptoTable() {
                                 <span className="text-xs text-gray-400">
                                   {formatAddress(token.created_by)}
                                 </span>
-                                {token.twitter && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.twitter,
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <Twitter />
-                                  </button>
-                                )}
                                 {token.website && (
                                   <button
                                     className="text-gray-500"
@@ -511,6 +548,20 @@ export default function CryptoTable() {
                                     }
                                   >
                                     <GlobeIcon width={12} height={12} />
+                                  </button>
+                                )}
+                                {token.twitter && (
+                                  <button
+                                    className="text-gray-500"
+                                    onClick={() =>
+                                      window.open(
+                                        token.twitter,
+                                        "_blank",
+                                        "noopener noreferrer"
+                                      )
+                                    }
+                                  >
+                                    <Twitter />
                                   </button>
                                 )}
                                 {token.telegram && (
@@ -567,12 +618,21 @@ export default function CryptoTable() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            $
-                            {formatTokenPrice(token.token_price_usd, {
-                              showCurrencySymbol: false,
-                            })}
-                          </span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="flex text-gray-400 font-bold text-[15px]">
+                                $
+                                {token.token_price_usd && (
+                                  <PriceFormatter
+                                    price={token.token_price_usd}
+                                  />
+                                )}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-50 text-gray-900">
+                              {formatTokenPrice(token.token_price_usd)}
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>
                           <span className="text-gray-400 font-semibold text-[15px]">
@@ -818,55 +878,8 @@ export default function CryptoTable() {
 
 const LoadingRow = () => (
   <TableRow className="border-itemborder bg">
-    {/* Token Column */}
-    <TableCell>
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-8 w-8 rounded-full" />
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-      </div>
-    </TableCell>
-    {/* Created On Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-24" />
-    </TableCell>
-    {/* Price Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-20" />
-    </TableCell>
-    {/* Market Cap Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-24" />
-    </TableCell>
-    {/* Holder % Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-12" />
-    </TableCell>
-    {/* TXS Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-16" />
-    </TableCell>
-    {/* Volume Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-24" />
-    </TableCell>
-    {/* 1M% Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-16" />
-    </TableCell>
-    {/* 5M% Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-16" />
-    </TableCell>
-    {/* 1H% Column */}
-    <TableCell>
-      <Skeleton className="h-4 w-16" />
-    </TableCell>
-    {/* Details Button Column */}
-    <TableCell>
-      <Skeleton className="h-8 w-16 rounded-md" />
+    <TableCell colSpan={12} className="h-8">
+      <Skeleton className="h-3 w-full rounded-md" />
     </TableCell>
   </TableRow>
 );
@@ -1128,7 +1141,3 @@ const calculateDaysSinceCreation = (cdate: string): string => {
     return "Invalid date"; // Or a suitable fallback
   }
 };
-
-function isTokenInfo(token: TokenInfo | TokenInfoSui): token is TokenInfo {
-  return "tickerSymbol" in token; // Check for a property unique to TokenInfo
-}

@@ -1,3 +1,9 @@
+import {
+  PricePredictionData,
+  TokenInfo,
+  TokenInfoSui,
+} from "@/types/interface";
+
 export const formatVolume = (volume: number): string => {
   if (volume >= 1000000) {
     return `${(volume / 1000000).toFixed(2)}M`;
@@ -62,3 +68,9 @@ const formatTokenPrice = (
 // Export type and function
 export type { PriceFormatterOptions };
 export { formatTokenPrice };
+
+export function isTokenInfo(
+  token: TokenInfo | TokenInfoSui
+): token is TokenInfo {
+  return "tickerSymbol" in token; // Check for a property unique to TokenInfo
+}
