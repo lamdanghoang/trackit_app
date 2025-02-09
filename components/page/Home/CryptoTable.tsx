@@ -585,18 +585,11 @@ export default function CryptoTable() {
                         <TableCell>
                           <div className="flex items-center">
                             <Image
-                              src="/dexes/routex.png"
-                              alt="routex"
+                              src="/dexes/sui_dex.png"
+                              alt="sui_dex"
                               width={32}
                               height={32}
                               className="rounded-full"
-                            />
-                            <Image
-                              src="/dexes/warpgate.png"
-                              alt="routex"
-                              width={32}
-                              height={32}
-                              className="rounded-full -ml-4"
                             />
                           </div>
                         </TableCell>
