@@ -37,7 +37,7 @@ interface SwapProps {
 }
 
 export default function TokenSwap({ token }: SwapProps) {
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string | null>("buy");
   const [slippage, setSlippage] = useState("5");
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] = useState<TokenData | null>(null);
@@ -56,6 +56,8 @@ export default function TokenSwap({ token }: SwapProps) {
       setSelectedToken(newTokenData);
     }
   }, [token]);
+
+  const quickAmounts = [10, 20, 25, 50, 75, 100];
 
   const slippageOptions = [1, 2, 3, 5, 10];
 
@@ -116,7 +118,7 @@ export default function TokenSwap({ token }: SwapProps) {
               </div>
 
               <div className="grid grid-cols-6 rounded-b-lg bg-[#1a3c78]">
-                {selectedToken?.quickAmounts.map((quickAmount) => (
+                {quickAmounts.map((quickAmount) => (
                   <Button
                     key={quickAmount}
                     variant="outline"
@@ -219,7 +221,7 @@ export default function TokenSwap({ token }: SwapProps) {
               </div>
 
               <div className="grid grid-cols-6 rounded-b-lg bg-[#1a3c78]">
-                {selectedToken?.quickAmounts.map((quickAmount) => (
+                {quickAmounts.map((quickAmount) => (
                   <Button
                     key={quickAmount}
                     variant="outline"
