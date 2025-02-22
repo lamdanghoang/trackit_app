@@ -63,9 +63,8 @@ import { PriceFormatter } from "../PriceFormatter";
 
 export default function CryptoTable() {
   const { setSelectedToken, selectedChain } = useContext(GlobalContext);
-  const [tokenInfoList, setTokenInfoList] = useState<
-    TokenInfo[] | TokenInfoSui[]
-  >(intitialList);
+  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>([]);
+  const [tokenInfoSuiList, setTokenInfoSuiList] = useState<TokenInfoSui[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -75,6 +74,7 @@ export default function CryptoTable() {
   const [copiedTokenIds, setCopiedTokenIds] = useState<Set<string>>(new Set());
   const [isPredictionOpen, setIsPredictionOpen] = useState(false);
   const [isPredictionLoading, setIsPredictionLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [pricePrediction, setPricePrediction] =
     useState<PricePredictionData | null>(null);
   const itemsPerPage = 8;
@@ -157,27 +157,34 @@ export default function CryptoTable() {
     }
   };
 
-  useEffect(() => {
-    const fetchTokenInfoList = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/token/list?limit=${itemsPerPage}&offset=${currentPage}&chain=${selectedChain}`
-        );
-        // console.log(response);
-        if (response.status === 200) {
-          const data: TokenInfo[] | TokenInfoSui[] = response.data;
-          setTokenInfoList(data);
-        }
-      } catch (err) {
-        setError("Failed to fetch governance data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchTokenInfoList = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/token/list?limit=${itemsPerPage}&offset=${currentPage}&chain=${selectedChain}`
+      );
 
+      if (response.status === 200) {
+        if (selectedChain === "sui") {
+          const data: TokenInfoSui[] = response.data;
+          setTokenInfoSuiList((prev) => [...prev, ...data]);
+          setCurrentPage((prev) => prev + 1);
+        } else {
+          const data: TokenInfo[] = response.data;
+          setTokenInfoList((prev) => [...prev, ...data]);
+          setCurrentPage((prev) => prev + 1);
+        }
+      }
+    } catch (err) {
+      setError("Failed to fetch governance data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTokenInfoList();
-  }, [currentPage, itemsPerPage, selectedChain]);
+  }, [selectedChain]);
 
   return (
     <div className="w-full h-[calc(100vh-6rem)] text-gray-100 overflow-hidden flex flex-col shadow-lg">
@@ -287,417 +294,405 @@ export default function CryptoTable() {
             </TableHeader>
             <TableBody>
               {isLoading &&
-                [...Array(10)].map((_, index) => <LoadingRow key={index} />)}
-              {!isLoading &&
-                tokenInfoList.map((token: TokenInfo | TokenInfoSui) => {
-                  if (isTokenInfo(token)) {
-                    return (
-                      <TableRow key={token.id} className="hover:bg-blue-900">
-                        <TableCell>
-                          {/* Token info cell content */}
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={token.image}
-                              alt=""
-                              className="h-8 w-8 rounded-full"
-                            />
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-400">
-                                  {token.tickerSymbol}
-                                </span>
+                [...Array(12)].map((_, index) => <LoadingRow key={index} />)}
+              {selectedChain !== "sui" &&
+                tokenInfoList.map((token: TokenInfo, index) => {
+                  return (
+                    <TableRow key={index} className="hover:bg-blue-900">
+                      <TableCell>
+                        {/* Token info cell content */}
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={token.image}
+                            alt=""
+                            className="h-8 w-8 rounded-full"
+                          />
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-400">
+                                {token.tickerSymbol}
+                              </span>
+                              <button
+                                className={`${
+                                  copiedTokenIds.has(token.id)
+                                    ? "text-green-500"
+                                    : "text-gray-500"
+                                }`}
+                                onClick={() => copyAddress(token)}
+                              >
+                                {!copiedTokenIds.has(token.id) ? (
+                                  <CopyIcon width={12} height={12} />
+                                ) : (
+                                  <ClipboardCheckIcon width={12} height={12} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">
+                                {token.creator
+                                  ? formatAddress(token.creator)
+                                  : formatAddress(token.creator)}
+                              </span>
+                              {token.website && (
                                 <button
-                                  className={`${
-                                    copiedTokenIds.has(token.id)
-                                      ? "text-green-500"
-                                      : "text-gray-500"
-                                  }`}
-                                  onClick={() => copyAddress(token)}
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.website ||
+                                        "https://www.movementnetwork.xyz/",
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
                                 >
-                                  {!copiedTokenIds.has(token.id) ? (
-                                    <CopyIcon width={12} height={12} />
-                                  ) : (
-                                    <ClipboardCheckIcon
-                                      width={12}
-                                      height={12}
-                                    />
-                                  )}
+                                  <GlobeIcon width={12} height={12} />
                                 </button>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">
-                                  {token.creator
-                                    ? formatAddress(token.creator)
-                                    : formatAddress(token.creator)}
-                                </span>
-                                {token.website && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.website ||
-                                          "https://www.movementnetwork.xyz/",
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <GlobeIcon width={12} height={12} />
-                                  </button>
-                                )}
-                                {token.twitter && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.twitter || "https://x.com/",
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <Twitter />
-                                  </button>
-                                )}
-                                {token.telegram && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.telegram ||
-                                          "https://telegram.org",
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <SendIcon width={12} height={12} />
-                                  </button>
-                                )}
-                              </div>
+                              )}
+                              {token.twitter && (
+                                <button
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.twitter || "https://x.com/",
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
+                                >
+                                  <Twitter />
+                                </button>
+                              )}
+                              {token.telegram && (
+                                <button
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.telegram || "https://telegram.org",
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
+                                >
+                                  <SendIcon width={12} height={12} />
+                                </button>
+                              )}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Image
-                              src="/dexes/routex.png"
-                              alt="routex"
-                              width={32}
-                              height={32}
-                              className="rounded-full"
-                            />
-                            <Image
-                              src="/dexes/warpgate.png"
-                              alt="routex"
-                              width={32}
-                              height={32}
-                              className="rounded-full -ml-4"
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip>
-                            {/* Wrap the date cell content with a Tooltip */}
-                            <TooltipTrigger asChild>
-                              {/* Use TooltipTrigger for accessibility */}
-                              <span className="text-green-400 font-medium text-[15px] cursor-pointer">
-                                {/* Make it look clickable */}
-                                {calculateDaysSinceCreation(token.cdate)}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-gray-50 text-gray-900">
-                              {/* Tooltip content shows the original date */}
-                              {format(new Date(token.cdate), "yyyy-MM-dd")}
-                              {/* Format the date as you like */}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="flex text-gray-400 font-bold text-[15px]">
-                                $
-                                {token.aptosUSDPrice && (
-                                  <PriceFormatter price={token.aptosUSDPrice} />
-                                )}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-gray-50 text-gray-900">
-                              {formatTokenPrice(token.aptosUSDPrice)}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-semibold text-[15px]">
-                            {formatVolume(token.marketCapUSD)}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            5%
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            10
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sky-600 font-bold text-[15px]">
-                            ${formatVolume(15000000)}
-                          </span>
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            false ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          -1.1%
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            false ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          -0.5%
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            true ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          5.09%
-                        </TableCell>
-                        <TableCell className="flex items-center gap-3">
-                          <Button
-                            size="sm"
-                            onClick={() => clickHandler(token)}
-                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
-                          >
-                            <Image
-                              src="/flash.png"
-                              alt="flash"
-                              width={20}
-                              height={20}
-                            />
-                            <span className="text-[15px] font-medium">Buy</span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              predictionHandler(token.name, token.tickerSymbol)
-                            }
-                            className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
-                          >
-                            <SparklesIcon />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  } else {
-                    return (
-                      <TableRow
-                        key={token.symbol}
-                        className="hover:bg-blue-900"
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Image
+                            src="/dexes/routex.png"
+                            alt="routex"
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                          <Image
+                            src="/dexes/warpgate.png"
+                            alt="routex"
+                            width={32}
+                            height={32}
+                            className="rounded-full -ml-4"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          {/* Wrap the date cell content with a Tooltip */}
+                          <TooltipTrigger asChild>
+                            {/* Use TooltipTrigger for accessibility */}
+                            <span className="text-green-400 font-medium text-[15px] cursor-pointer">
+                              {/* Make it look clickable */}
+                              {calculateDaysSinceCreation(token.cdate)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-gray-50 text-gray-900">
+                            {/* Tooltip content shows the original date */}
+                            {format(new Date(token.cdate), "yyyy-MM-dd")}
+                            {/* Format the date as you like */}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex text-gray-400 font-bold text-[15px]">
+                              $
+                              {token.aptosUSDPrice && (
+                                <PriceFormatter price={token.aptosUSDPrice} />
+                              )}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-gray-50 text-gray-900">
+                            {formatTokenPrice(token.aptosUSDPrice)}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-semibold text-[15px]">
+                          {formatVolume(token.marketCapUSD)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-bold text-[15px]">
+                          5%
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-bold text-[15px]">
+                          10
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sky-600 font-bold text-[15px]">
+                          ${formatVolume(15000000)}
+                        </span>
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          false ? "text-green-500" : "text-red-500"
+                        }`}
                       >
-                        <TableCell>
-                          {/* Token info cell content */}
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={token.token_metadata.iconUrl}
-                              alt=""
-                              className="h-8 w-8 rounded-full"
-                            />
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-400">
-                                  {token.token_metadata.symbol}
-                                </span>
+                        -1.1%
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          false ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        -0.5%
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          true ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        5.09%
+                      </TableCell>
+                      <TableCell className="flex items-center gap-3">
+                        <Button
+                          size="sm"
+                          onClick={() => clickHandler(token)}
+                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                        >
+                          <Image
+                            src="/flash.png"
+                            alt="flash"
+                            width={20}
+                            height={20}
+                          />
+                          <span className="text-[15px] font-medium">Buy</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            predictionHandler(token.name, token.tickerSymbol)
+                          }
+                          className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
+                        >
+                          <SparklesIcon />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              {selectedChain === "sui" &&
+                tokenInfoSuiList.map((token: TokenInfoSui, index) => {
+                  return (
+                    <TableRow key={index} className="hover:bg-blue-900">
+                      <TableCell>
+                        {/* Token info cell content */}
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={token.token_metadata.iconUrl}
+                            alt=""
+                            className="h-8 w-8 rounded-full"
+                          />
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-400">
+                                {token.token_metadata.symbol}
+                              </span>
+                              <button
+                                className={`${
+                                  copiedTokenIds.has(token.token_address)
+                                    ? "text-green-500"
+                                    : "text-gray-500"
+                                }`}
+                                onClick={() => copyAddress(token)}
+                              >
+                                {!copiedTokenIds.has(token.symbol) ? (
+                                  <CopyIcon width={12} height={12} />
+                                ) : (
+                                  <ClipboardCheckIcon width={12} height={12} />
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">
+                                {formatAddress(token.created_by)}
+                              </span>
+                              {token.website && (
                                 <button
-                                  className={`${
-                                    copiedTokenIds.has(token.token_address)
-                                      ? "text-green-500"
-                                      : "text-gray-500"
-                                  }`}
-                                  onClick={() => copyAddress(token)}
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.website,
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
                                 >
-                                  {!copiedTokenIds.has(token.symbol) ? (
-                                    <CopyIcon width={12} height={12} />
-                                  ) : (
-                                    <ClipboardCheckIcon
-                                      width={12}
-                                      height={12}
-                                    />
-                                  )}
+                                  <GlobeIcon width={12} height={12} />
                                 </button>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">
-                                  {formatAddress(token.created_by)}
-                                </span>
-                                {token.website && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.website,
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <GlobeIcon width={12} height={12} />
-                                  </button>
-                                )}
-                                {token.twitter && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.twitter,
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <Twitter />
-                                  </button>
-                                )}
-                                {token.telegram && (
-                                  <button
-                                    className="text-gray-500"
-                                    onClick={() =>
-                                      window.open(
-                                        token.telegram,
-                                        "_blank",
-                                        "noopener noreferrer"
-                                      )
-                                    }
-                                  >
-                                    <SendIcon width={12} height={12} />
-                                  </button>
-                                )}
-                              </div>
+                              )}
+                              {token.twitter && (
+                                <button
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.twitter,
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
+                                >
+                                  <Twitter />
+                                </button>
+                              )}
+                              {token.telegram && (
+                                <button
+                                  className="text-gray-500"
+                                  onClick={() =>
+                                    window.open(
+                                      token.telegram,
+                                      "_blank",
+                                      "noopener noreferrer"
+                                    )
+                                  }
+                                >
+                                  <SendIcon width={12} height={12} />
+                                </button>
+                              )}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Image
-                              src="/dexes/sui_dex.png"
-                              alt="sui_dex"
-                              width={32}
-                              height={32}
-                              className="rounded-full"
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip>
-                            {/* Wrap the date cell content with a Tooltip */}
-                            <TooltipTrigger asChild>
-                              {/* Use TooltipTrigger for accessibility */}
-                              <span className="text-green-400 font-medium text-[15px] cursor-pointer">
-                                {/* Make it look clickable */}
-                                {calculateDaysSinceCreation(token.created_at)}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-gray-50 text-gray-900">
-                              {/* Tooltip content shows the original date */}
-                              {format(new Date(token.created_at), "yyyy-MM-dd")}
-                              {/* Format the date as you like */}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="flex text-gray-400 font-bold text-[15px]">
-                                $
-                                {token.token_price_usd && (
-                                  <PriceFormatter
-                                    price={token.token_price_usd}
-                                  />
-                                )}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-gray-50 text-gray-900">
-                              {formatTokenPrice(token.token_price_usd)}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-semibold text-[15px]">
-                            {formatVolume(token.market_cap_usd)}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            5%
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-gray-400 font-bold text-[15px]">
-                            10
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sky-600 font-bold text-[15px]">
-                            ${formatVolume(+token.volume_usd)}
-                          </span>
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            false ? "text-green-500" : "text-red-500"
-                          }`}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <Image
+                            src="/dexes/sui_dex.png"
+                            alt="sui_dex"
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          {/* Wrap the date cell content with a Tooltip */}
+                          <TooltipTrigger asChild>
+                            {/* Use TooltipTrigger for accessibility */}
+                            <span className="text-green-400 font-medium text-[15px] cursor-pointer">
+                              {/* Make it look clickable */}
+                              {calculateDaysSinceCreation(token.created_at)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-gray-50 text-gray-900">
+                            {/* Tooltip content shows the original date */}
+                            {format(new Date(token.created_at), "yyyy-MM-dd")}
+                            {/* Format the date as you like */}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex text-gray-400 font-bold text-[15px]">
+                              $
+                              {token.token_price_usd && (
+                                <PriceFormatter price={token.token_price_usd} />
+                              )}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-gray-50 text-gray-900">
+                            {formatTokenPrice(token.token_price_usd)}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-semibold text-[15px]">
+                          {formatVolume(token.market_cap_usd)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-bold text-[15px]">
+                          5%
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 font-bold text-[15px]">
+                          10
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sky-600 font-bold text-[15px]">
+                          ${formatVolume(+token.volume_usd)}
+                        </span>
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          false ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        -1.1%
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          false ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        -0.5%
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold text-[15px] ${
+                          true ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        5.09%
+                      </TableCell>
+                      <TableCell className="flex items-center gap-3">
+                        <Button
+                          size="sm"
+                          onClick={() => clickHandler(token)}
+                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
                         >
-                          -1.1%
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            false ? "text-green-500" : "text-red-500"
-                          }`}
+                          <Image
+                            src="/flash.png"
+                            alt="flash"
+                            width={20}
+                            height={20}
+                          />
+                          <span className="text-[15px] font-medium">Buy</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            predictionHandler(
+                              token.token_metadata.name,
+                              token.token_metadata.symbol
+                            )
+                          }
+                          className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
                         >
-                          -0.5%
-                        </TableCell>
-                        <TableCell
-                          className={`font-semibold text-[15px] ${
-                            true ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          5.09%
-                        </TableCell>
-                        <TableCell className="flex items-center gap-3">
-                          <Button
-                            size="sm"
-                            onClick={() => clickHandler(token)}
-                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
-                          >
-                            <Image
-                              src="/flash.png"
-                              alt="flash"
-                              width={20}
-                              height={20}
-                            />
-                            <span className="text-[15px] font-medium">Buy</span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              predictionHandler(
-                                token.token_metadata.name,
-                                token.token_metadata.symbol
-                              )
-                            }
-                            className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
-                          >
-                            <SparklesIcon />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  }
+                          <SparklesIcon />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
                 })}
             </TableBody>
           </Table>
@@ -714,7 +709,7 @@ export default function CryptoTable() {
             />
           )}
           {/* Mobile View */}
-          <ul className="md:hidden divide-y divide-itemborder">
+          {/* <ul className="md:hidden divide-y divide-itemborder">
             {!isLoading &&
               tokenInfoList.map((token) => {
                 if (isTokenInfo(token)) {
@@ -833,37 +828,29 @@ export default function CryptoTable() {
                   </li>;
                 }
               })}
-          </ul>
+          </ul> */}
           <ScrollBar orientation="horizontal" />
+          <div className="flex justify-center items-center p-4 w-full bg border-t border-[#132D5B]">
+            {hasMore && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={fetchTokenInfoList}
+                disabled={isLoading}
+                className="bg-gray-700 hover:bg-gray-600 text-gray-100 hover:text-gray-100 border-gray-700"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Load More"
+                )}
+              </Button>
+            )}
+          </div>
         </ScrollArea>
-      </div>
-
-      {/* Pagination */}
-
-      <div className="flex justify-between items-center p-4 border-t border-itemborder">
-        <span className="text-sm text-gray-400 hidden sm:inline">
-          Showing {itemsPerPage} tokens per page
-        </span>
-        <div className="flex items-center gap-2 mx-auto sm:mx-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="h-8 text-gray-800"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-medium px-2">Page {currentPage}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="h-8 text-gray-800"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
     </div>
   );
