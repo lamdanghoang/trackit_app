@@ -20,7 +20,6 @@ import {
   Router,
   CurrencyAmount,
 } from "warpgate-swap-sdk";
-import { testnetClient } from "@/components/warpgate/client";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 interface TokenData {
