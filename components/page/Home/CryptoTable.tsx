@@ -287,7 +287,11 @@ export default function CryptoTable() {
                   {selectedChain !== "sui" &&
                     tokenInfoList.map((token: TokenInfo, index) => {
                       return (
-                        <TableRow key={index} className="hover:bg-blue-900">
+                        <TableRow
+                          key={index}
+                          className="hover:bg-blue-900"
+                          onClick={() => clickHandler(token)}
+                        >
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Tooltip>
@@ -319,6 +323,7 @@ export default function CryptoTable() {
                                       href={token.pool_url}
                                       target="_blank"
                                       className="font-semibold text-gray-400 cursor-pointer"
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       {token.tickerSymbol}
                                     </Link>
@@ -328,7 +333,10 @@ export default function CryptoTable() {
                                           ? "text-green-500"
                                           : "text-gray-500"
                                       }`}
-                                      onClick={() => copyAddress(token)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyAddress(token);
+                                      }}
                                     >
                                       {!copiedTokenIds.has(token.id) ? (
                                         <CopyIcon width={12} height={12} />
@@ -349,14 +357,15 @@ export default function CryptoTable() {
                                     {token.website && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.website ||
                                               "https://www.movementnetwork.xyz/",
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <GlobeIcon width={12} height={12} />
                                       </button>
@@ -364,13 +373,14 @@ export default function CryptoTable() {
                                     {token.twitter && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.twitter || "https://x.com/",
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <Twitter />
                                       </button>
@@ -378,14 +388,15 @@ export default function CryptoTable() {
                                     {token.telegram && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.telegram ||
                                               "https://telegram.org",
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <SendIcon width={12} height={12} />
                                       </button>
@@ -494,12 +505,13 @@ export default function CryptoTable() {
                             </Button>
                             <Button
                               size="sm"
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 predictionHandler(
                                   token.name,
                                   token.tickerSymbol
-                                )
-                              }
+                                );
+                              }}
                               className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
                             >
                               <SparklesIcon />
@@ -511,7 +523,11 @@ export default function CryptoTable() {
                   {selectedChain === "sui" &&
                     tokenInfoSuiList.map((token: TokenInfoSui, index) => {
                       return (
-                        <TableRow key={index} className="hover:bg-blue-900">
+                        <TableRow
+                          key={index}
+                          className="hover:bg-blue-900"
+                          onClick={() => clickHandler(token)}
+                        >
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Tooltip>
@@ -547,7 +563,10 @@ export default function CryptoTable() {
                                           ? "text-green-500"
                                           : "text-gray-500"
                                       }`}
-                                      onClick={() => copyAddress(token)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyAddress(token);
+                                      }}
                                     >
                                       {!copiedTokenIds.has(token.symbol) ? (
                                         <CopyIcon width={12} height={12} />
@@ -566,13 +585,14 @@ export default function CryptoTable() {
                                     {token.website && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.website,
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <GlobeIcon width={12} height={12} />
                                       </button>
@@ -580,13 +600,14 @@ export default function CryptoTable() {
                                     {token.twitter && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.twitter,
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <Twitter />
                                       </button>
@@ -594,13 +615,14 @@ export default function CryptoTable() {
                                     {token.telegram && (
                                       <button
                                         className="text-gray-500"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           window.open(
                                             token.telegram,
                                             "_blank",
                                             "noopener noreferrer"
-                                          )
-                                        }
+                                          );
+                                        }}
                                       >
                                         <SendIcon width={12} height={12} />
                                       </button>
@@ -689,12 +711,13 @@ export default function CryptoTable() {
                             </Button>
                             <Button
                               size="sm"
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 predictionHandler(
                                   token.token_metadata.name,
                                   token.token_metadata.symbol
-                                )
-                              }
+                                );
+                              }}
                               className="px-2.5 bg-transparent hover:bg-bluesky text-yellow-400 border border-bluesky rounded-full"
                             >
                               <SparklesIcon />
