@@ -288,10 +288,10 @@ export default function CryptoTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="hover:bg-transparent"
+                          className="hover:bg-blue-900 transition-colors duration-150 group"
                           onClick={() => clickHandler(token)}
                         >
-                          <TableCell className="sticky left-0 z-20 bg-[#0e203f]">
+                          <TableCell className="sticky left-0 z-20 bg-[#0e203f] group-hover:bg-blue-900 transition-colors duration-150">
                             <div className="flex items-center gap-2">
                               <Tooltip>
                                 {/* Wrap the date cell content with a Tooltip */}
@@ -524,10 +524,10 @@ export default function CryptoTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="hover:bg-transparent"
+                          className="hover:bg-blue-900 transition-colors duration-150 group"
                           onClick={() => clickHandler(token)}
                         >
-                          <TableCell className="sticky left-0 z-20 bg-[#0e203f]">
+                          <TableCell className="sticky left-0 z-20 bg-[#0e203f] group-hover:bg-blue-900 transition-colors duration-150">
                             <div className="flex items-center gap-2">
                               <Tooltip>
                                 {/* Wrap the date cell content with a Tooltip */}
