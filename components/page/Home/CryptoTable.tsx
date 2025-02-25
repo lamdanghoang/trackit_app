@@ -288,7 +288,7 @@ export default function CryptoTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="hover:bg-blue-900"
+                          className="hover:bg-transparent"
                           onClick={() => clickHandler(token)}
                         >
                           <TableCell className="sticky left-0 z-20 bg-[#0e203f]">
@@ -524,7 +524,7 @@ export default function CryptoTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="hover:bg-blue-900"
+                          className="hover:bg-transparent"
                           onClick={() => clickHandler(token)}
                         >
                           <TableCell className="sticky left-0 z-20 bg-[#0e203f]">

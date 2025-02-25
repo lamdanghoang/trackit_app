@@ -19,8 +19,11 @@ import {
   Percent,
   Router,
   CurrencyAmount,
+  Currency,
+  DEFAULT_FEE,
 } from "warpgate-swap-sdk";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { aptos, getPair, PairState } from "@/components/warpgate";
 
 interface TokenData {
   address: string;
@@ -62,6 +65,76 @@ export default function TokenSwap({ token }: SwapProps) {
 
   const handleTabClick = (tab: string) => {
     setActiveTab((prevTab) => (prevTab === tab ? null : tab));
+  };
+
+  const swapHandler = async () => {
+    const RushiCoin = new Coin(
+      ChainId.MOVE_MAINNET,
+      "0xa9e39026c4a793078bec2dda05c0d46a1d961145d3d666eb63d150fdf44b6ccf::rushi_coin::RushiCoin",
+      8,
+      "RushiCoin"
+    );
+
+    const CoopCoin = new Coin(
+      ChainId.MOVE_MAINNET,
+      "0xa9e39026c4a793078bec2dda05c0d46a1d961145d3d666eb63d150fdf44b6ccf::coop_coin::CoopCoin",
+      8,
+      "CoopCoin"
+    );
+
+    try {
+      // Get pair
+      const [pairState, pair] = await getPair(RushiCoin, CoopCoin);
+
+      if (pairState === PairState.EXISTS && pair) {
+        // Create a route
+        const route = new Route([pair], RushiCoin, CoopCoin);
+
+        // Create a trade with 1 move
+        const trade = Trade.exactIn(
+          route,
+          CurrencyAmount.fromRawAmount(RushiCoin, "100000000"), // 1 move
+          DEFAULT_FEE
+        );
+
+        // Execute the swap with 0.5% slippage tolerance
+        const slippageValue = parseInt("50", 10);
+        const slippagePercent = new Percent(slippageValue * 100, 10000);
+        const swapParams: any = Router.swapCallParameters(trade, {
+          allowedSlippage: slippagePercent, // 0.5%
+        });
+
+        // Log the swap parameters and reserves
+        console.log("Swap Parameters:", {
+          typeArguments: swapParams?.typeArguments,
+          functionArguments: swapParams?.functionArguments,
+          function: swapParams?.function,
+        });
+
+        console.log("Pair Reserves:", {
+          reserve0: pair.reserve0.toExact(),
+          reserve1: pair.reserve1.toExact(),
+          price0: pair.token0Price.toSignificant(6),
+          price1: pair.token1Price.toSignificant(6),
+        });
+
+        // Submit transaction
+        const transaction = await aptos.generateTransaction(
+          account.address,
+          swapParams
+        );
+        const pendingTx = await aptos.signAndSubmitTransaction(
+          account,
+          transaction
+        );
+        const txResult = await aptos.waitForTransaction(pendingTx.hash);
+      } else {
+        console.log("Pair does not exist on blockchain");
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to swap");
+    }
   };
 
   return (
@@ -159,6 +232,7 @@ export default function TokenSwap({ token }: SwapProps) {
 
             {connected ? (
               <Button
+                onClick={() => swapHandler()}
                 className={cn(
                   "w-full h-12 text-lg font-semibold",
                   activeTab === "buy"
