@@ -60,7 +60,6 @@ const Layout = ({
                     className="h-5 w-0.5 bg-gray-700"
                   />
                   <WalletSelector />
-                  <ConnectButton>Razor Wallet</ConnectButton>
                 </div>
               </header>
               <div className="flex-1">

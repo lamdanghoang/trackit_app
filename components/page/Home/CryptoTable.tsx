@@ -751,7 +751,7 @@ export default function CryptoTable() {
   );
 }
 
-const LoadingRow = () => (
+export const LoadingRow = () => (
   <TableRow className="bg hover:bg-transparent">
     <TableCell colSpan={7} className="p-0">
       <Skeleton className="h-12 w-full rounded-none bg-gray-600 mb-1.5" />
