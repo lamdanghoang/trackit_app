@@ -118,16 +118,20 @@ export default function TokenSwap({ token }: SwapProps) {
           price1: pair.token1Price.toSignificant(6),
         });
 
+        if (!account) return;
+
         // Submit transaction
-        const transaction = await aptos.generateTransaction(
-          account.address,
-          swapParams
-        );
-        const pendingTx = await aptos.signAndSubmitTransaction(
-          account,
-          transaction
-        );
-        const txResult = await aptos.waitForTransaction(pendingTx.hash);
+        // const transaction = await aptos.transaction.build.simple({
+        //   sender: account.address,
+        //   data: swapParams,
+        // });
+        // const pendingTx = await aptos.transaction.signAndSubmitTransaction({
+        //   signer: account,
+        //   transaction,
+        // });
+        // const txResult = await aptos.transaction.waitForTransaction({
+        //   transactionHash: pendingTx.hash,
+        // });
       } else {
         console.log("Pair does not exist on blockchain");
         return;
