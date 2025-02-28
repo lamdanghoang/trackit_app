@@ -248,7 +248,7 @@ export default function CryptoTable() {
                 </TableHeader>
                 <TableBody>
                   {selectedChain !== "sui" &&
-                    tokenInfoList.map((token: TokenInfo, index) => {
+                    examples.map((token: TokenInfo, index) => {
                       return (
                         <TableRow
                           key={index}
@@ -399,7 +399,9 @@ export default function CryptoTable() {
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent className="bg-gray-50 text-gray-900">
-                                {formatTokenPrice(token.aptosUSDPrice)}
+                                {token.aptosUSDPrice
+                                  ? formatTokenPrice(token.aptosUSDPrice)
+                                  : "N/A"}
                               </TooltipContent>
                             </Tooltip>
                           </TableCell>
@@ -1020,3 +1022,121 @@ const calculateDaysSinceCreation = (cdate: string): string => {
     return "Invalid date"; // Or a suitable fallback
   }
 };
+
+const examples: TokenInfo[] = [
+  {
+    id: "04919110-f58c-11ef-9591-2b2da28e9d51",
+    name: "devbuy102",
+    tickerSymbol: "DEVBUY102",
+    desc: "This is a test description",
+    creator:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    mintAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY102::DEVBUY102",
+    image: "https://hatchy.s3.us-east-2.amazonaws.com/1740716719143-cw.jpg",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-02-28T04:25:19.000Z",
+    creatorName: "embattledcanon",
+    creatorWalletAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: null,
+    trades: [
+      {
+        side: "BUY",
+        count: "1",
+        volume: "0.100000000000000000",
+      },
+      {
+        side: "SELL",
+        count: "1",
+        volume: "0.000004950000000000",
+      },
+    ],
+    aptosUSDPrice: null,
+    holderPercentage: 1,
+    bondinCurvepercentage: 0.000659966999998384,
+    seeded: null,
+    exchange: "warpgate",
+    pool_url:
+      "https://warpgate.fun/trading-view/0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY102::DEVBUY102",
+  },
+  {
+    id: "85180d60-f58b-11ef-aae5-d7588f49de75",
+    name: "devbuy101",
+    tickerSymbol: "DEVBUY101",
+    desc: "This is a test description",
+    creator:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    mintAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY101::DEVBUY101",
+    image:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1740716505198-elonmusk.jpg",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-02-28T04:21:45.000Z",
+    creatorName: "embattledcanon",
+    creatorWalletAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 2136.84593973974,
+    trades: [
+      {
+        side: "BUY",
+        count: "1",
+        volume: "1.000000000000000000",
+      },
+    ],
+    aptosUSDPrice: 0.4272,
+    holderPercentage: 1,
+    bondinCurvepercentage: 0.00659999999999854,
+    seeded: null,
+    exchange: "warpgate",
+    pool_url:
+      "https://warpgate.fun/trading-view/0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY101::DEVBUY101",
+  },
+  {
+    id: "fb206170-f58a-11ef-aae5-d7588f49de75",
+    name: "devbuy100",
+    tickerSymbol: "DEVBUY100",
+    desc: "This is a test description",
+    creator:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    mintAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY100::DEVBUY100",
+    image:
+      "https://hatchy.s3.us-east-2.amazonaws.com/1740716273764-elonmusk.jpg",
+    twitter: null,
+    telegram: null,
+    website: null,
+    status: "ACTIVE",
+    cdate: "2025-02-28T04:17:53.000Z",
+    creatorName: "embattledcanon",
+    creatorWalletAddr:
+      "0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01",
+    creatorAvatar: null,
+    replies: 0,
+    marketCapUSD: 2136,
+    trades: [
+      {
+        side: "BUY",
+        count: "1",
+        volume: "0.000000000000000000",
+      },
+    ],
+    aptosUSDPrice: 0.4272,
+    holderPercentage: 0,
+    bondinCurvepercentage: 0,
+    seeded: null,
+    exchange: "warpgate",
+    pool_url:
+      "https://warpgate.fun/trading-view/0xe22303538d5100b98b7e6668854b2c3b0f7981927fb8ffb52e3b38f296a9cc01::DEVBUY100::DEVBUY100",
+  },
+];
