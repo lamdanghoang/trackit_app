@@ -1,20 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  ArrowDown,
-  ArrowUp,
-  ExternalLink,
-  Globe,
-  MessageCircle,
-  Timer,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import Chart from "./CustomChart";
-import { useContext, useEffect } from "react";
-import GlobalContext from "@/context/store";
 import TxHistory from "./TxHistory";
 import Detail from "./Detail";
 
@@ -33,8 +19,6 @@ const sub_tabs = [
 ];
 
 export default function Token() {
-  const { selectedToken } = useContext(GlobalContext);
-
   return (
     <div className="grid md:grid-cols-[3.5fr_1.2fr] flex-1 gap-4">
       {/* Middle */}

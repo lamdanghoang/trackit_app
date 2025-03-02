@@ -39,7 +39,7 @@ export default function Pools() {
           "0x1::aptos_coin::AptosCoin",
           "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
         ],
-        functionArguments: [100000000, 76201, 100000000, 76201, 9975],
+        functionArguments: [100000000, 76201, 0, 0, 9975],
       },
     });
 
@@ -120,7 +120,7 @@ export default function Pools() {
               <>
                 <TableHeader className="sticky top-0 z-50 bg">
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="sticky left-0 z-20 bg-[#0e203f] min-w-52 text-gray-400 font-medium">
+                    <TableHead className="sticky left-0 z-20 bg-[#0e203f] min-w-32 text-gray-400 font-medium">
                       Pool
                     </TableHead>
                     <TableHead className="min-w-32 text-gray-400 font-medium">

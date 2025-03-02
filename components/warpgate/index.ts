@@ -137,6 +137,50 @@ export async function getSwapParams(
   }
 }
 
+export async function getAddLiquidParams(
+  amount1: string,
+  amount2: string,
+  minAmount1: string,
+  minAmount2: string,
+  addr1: string,
+  addr2: string,
+  fee: string
+) {
+  const addLiquidParams = Router.addLiquidityParameters(
+    amount1,
+    amount2,
+    minAmount1,
+    minAmount2,
+    addr1,
+    addr2,
+    fee
+  );
+  if (addLiquidParams) {
+    return addLiquidParams;
+  }
+  return null;
+}
+
+export async function getRemoveLiquidParams(
+  amountLP: string,
+  minAmount1: string,
+  minAmount2: string,
+  addr1: string,
+  addr2: string
+) {
+  const removeLiquidParams = Router.removeLiquidityParameters(
+    amountLP,
+    minAmount1,
+    minAmount2,
+    addr1,
+    addr2
+  );
+  if (removeLiquidParams) {
+    return removeLiquidParams;
+  }
+  return null;
+}
+
 // Example usage
 async function main() {
   // Define tokens
@@ -186,7 +230,7 @@ async function main() {
   }
 }
 
-// main().catch(console.error);
+main().catch(console.error);
 
 // // Initialize Aptos client
 // const config = new AptosConfig({
