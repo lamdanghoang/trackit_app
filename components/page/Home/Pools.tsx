@@ -15,12 +15,16 @@ import { useState } from "react";
 import { LoadingRow } from "./CryptoTable";
 import {
   aptosClient,
+  estimateLiquidToAdd,
+  getAddLiquidParams,
   getPairParams,
+  getRemoveLiquidParams,
   getSwapParams,
   TESTNET_SWAP_CONTRACT_ADDRESS,
 } from "@/components/warpgate";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { SWAP_ADDRESS } from "warpgate-swap-sdk";
+import { convertAmountFromHumanReadableToOnChain } from "@aptos-labs/ts-sdk";
 
 export default function Pools() {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,24 +44,48 @@ export default function Pools() {
     );
 
     if (!params) return;
-    console.log(params);
+    const amount1 = convertAmountFromHumanReadableToOnChain(1, 8);
 
-    const amountToken = (100000000 * +params.reserve0) / +params.reserve1;
+    const amount2 = estimateLiquidToAdd(
+      `${amount1}`,
+      params.reserve0,
+      params.reserve1
+    );
+
+    const addParams = await getAddLiquidParams(
+      `${amount1}`,
+      `${amount2}`,
+      "0",
+      "0",
+      "MAHA",
+      "MOVE",
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
+      "0x1::aptos_coin::AptosCoin",
+      "9975"
+    );
+
+    if (!addParams) return;
 
     const response = await signAndSubmitTransaction({
       sender: account.address,
       data: {
         function: `${TESTNET_SWAP_CONTRACT_ADDRESS}::router::add_liquidity`,
-        typeArguments: [
-          "0x1::aptos_coin::AptosCoin",
-          "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
-        ],
-        functionArguments: [100000000, amountToken, 0, 0, 9975],
+        typeArguments: [...addParams.typeArguments],
+        functionArguments: [...addParams.functionArguments],
       },
     });
 
-    const txResult = await aptosClient().waitForTransaction(response.hash);
-    console.log("Add liquid. hash: ", txResult);
+    if (response) {
+      const client = aptosClient();
+      const txResult = await client.waitForTransaction({
+        transactionHash: response.hash,
+        options: {
+          checkSuccess: true,
+        },
+      });
+
+      txResult.success && console.log("Add liquid. hash: ", txResult.hash);
+    }
   };
 
   const removeLiquid = async () => {
@@ -65,20 +93,38 @@ export default function Pools() {
       throw new Error("Wallet not connected");
     }
 
+    const amount = "0.005";
+
+    const removeParams = await getRemoveLiquidParams(
+      convertAmountFromHumanReadableToOnChain(+amount, 8).toString(),
+      "0",
+      "0",
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
+      "0x1::aptos_coin::AptosCoin"
+    );
+
+    if (!removeParams) return;
+
     const response = await signAndSubmitTransaction({
       sender: account.address,
       data: {
         function: `${TESTNET_SWAP_CONTRACT_ADDRESS}::router::remove_liquidity`,
-        typeArguments: [
-          "0x1::aptos_coin::AptosCoin",
-          "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
-        ],
-        functionArguments: [100000000, 100000000, 76201],
+        typeArguments: [...removeParams.typeArguments],
+        functionArguments: [...removeParams.functionArguments],
       },
     });
 
-    const txResult = await aptosClient().waitForTransaction(response.hash);
-    console.log("Add liquid. hash: ", txResult);
+    if (response) {
+      const client = aptosClient();
+      const txResult = await client.waitForTransaction({
+        transactionHash: response.hash,
+        options: {
+          checkSuccess: true,
+        },
+      });
+
+      txResult.success && console.log("Remove liquid. hash: ", txResult.hash);
+    }
   };
 
   const swapHandler = async () => {
@@ -87,6 +133,7 @@ export default function Pools() {
     }
 
     const params = await getSwapParams(
+      "0.1",
       "0x1::aptos_coin::AptosCoin",
       "MOVE",
       "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
@@ -100,20 +147,21 @@ export default function Pools() {
       sender: account.address,
       data: {
         function: `${TESTNET_SWAP_CONTRACT_ADDRESS}::router::swap_exact_input`,
-        typeArguments: [
-          "0x1::aptos_coin::AptosCoin",
-          "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
-        ],
+        typeArguments: [...params.typeArguments],
         functionArguments: [...params.functionArguments], // swap 1 move
       },
     });
 
-    console.log(response);
-
     if (response) {
       const client = aptosClient();
-      const txResult = await client.waitForTransaction(response.hash);
-      console.log("Swap hash: ", txResult);
+      const txResult = await client.waitForTransaction({
+        transactionHash: response.hash,
+        options: {
+          checkSuccess: true,
+        },
+      });
+
+      txResult.success && console.log("Swap hash: ", txResult.hash);
     }
   };
 

@@ -1,6 +1,8 @@
 import {
   Aptos,
   AptosConfig,
+  convertAmountFromHumanReadableToOnChain,
+  convertAmountFromOnChainToHumanReadable,
   InputEntryFunctionData,
   InputScriptData,
   Network,
@@ -13,7 +15,6 @@ import {
   Trade,
   Router,
   Currency,
-  SWAP_ADDRESS,
   Percent,
   CurrencyAmount,
   DEFAULT_FEE,
@@ -91,6 +92,7 @@ export async function getPair(
 }
 
 export async function getSwapParams(
+  amount1: string,
   addr1: string,
   symbol1: string,
   addr2: string,
@@ -110,7 +112,10 @@ export async function getSwapParams(
     // Create a trade with 1 Move
     const trade = Trade.exactIn(
       route,
-      CurrencyAmount.fromRawAmount(Move, "100000000"), // 1 Move
+      CurrencyAmount.fromRawAmount(
+        Move,
+        convertAmountFromHumanReadableToOnChain(+amount1, 8)
+      ), // 1 Move
       DEFAULT_FEE // 0.25% fee
     );
 
@@ -168,23 +173,49 @@ export async function getAddLiquidParams(
   amount2: string,
   minAmount1: string,
   minAmount2: string,
+  symbol1: string,
+  symbol2: string,
   addr1: string,
   addr2: string,
   fee: string
 ) {
-  const addLiquidParams = Router.addLiquidityParameters(
-    amount1,
-    amount2,
-    minAmount1,
-    minAmount2,
-    addr1,
-    addr2,
-    fee
-  );
-  if (addLiquidParams) {
-    return addLiquidParams;
+  const Move = new Coin(250, addr1, 8, symbol1);
+
+  const token = new Coin(250, addr2, 8, symbol2);
+
+  // Get pair
+  const [pairState, pair] = await getPair(token, Move);
+
+  if (pairState === PairState.EXISTS && pair) {
+    const amount_1 = convertAmountFromHumanReadableToOnChain(+amount1, 8);
+    const amount_2 = convertAmountFromHumanReadableToOnChain(+amount2, 8);
+
+    const addLiquidParams: any = Router.addLiquidityParameters(
+      amount_1.toString(),
+      amount_2.toString(),
+      minAmount1,
+      minAmount2,
+      addr1,
+      addr2,
+      fee
+    );
+
+    // Log the swap parameters and reserves
+    console.log("Add liquid Parameters:", {
+      typeArguments: addLiquidParams?.typeArguments,
+      functionArguments: addLiquidParams?.functionArguments,
+      function: addLiquidParams?.function,
+    });
+
+    return {
+      typeArguments: addLiquidParams?.typeArguments,
+      functionArguments: addLiquidParams?.functionArguments,
+      function: addLiquidParams?.function,
+    };
+  } else {
+    console.log("Pair does not exist on blockchain");
+    return null;
   }
-  return null;
 }
 
 export async function getRemoveLiquidParams(
@@ -194,7 +225,7 @@ export async function getRemoveLiquidParams(
   addr1: string,
   addr2: string
 ) {
-  const removeLiquidParams = Router.removeLiquidityParameters(
+  const removeLiquidParams: any = Router.removeLiquidityParameters(
     amountLP,
     minAmount1,
     minAmount2,
@@ -202,9 +233,35 @@ export async function getRemoveLiquidParams(
     addr2
   );
   if (removeLiquidParams) {
+    // Log the swap parameters and reserves
+    console.log("Remove liquid Parameters:", {
+      typeArguments: removeLiquidParams?.typeArguments,
+      functionArguments: removeLiquidParams?.functionArguments,
+      function: removeLiquidParams?.function,
+    });
     return removeLiquidParams;
   }
+  console.log("Pair does not exist on blockchain");
   return null;
+}
+
+export function estimateLiquidToAdd(
+  amount1: string,
+  reserve0: string,
+  reserve1: string
+) {
+  const amount_1 = BigInt(convertAmountFromHumanReadableToOnChain(+amount1, 8));
+  const reserve_0 = BigInt(
+    convertAmountFromHumanReadableToOnChain(+reserve0, 8)
+  );
+  const reserve_1 = BigInt(
+    convertAmountFromHumanReadableToOnChain(+reserve1, 8)
+  );
+
+  const amount2 = (amount_1 * reserve_0) / reserve_1;
+
+  const amount_2 = convertAmountFromOnChainToHumanReadable(Number(amount2), 8);
+  return amount_2;
 }
 
 // Example usage
@@ -251,12 +308,28 @@ async function main() {
       price0: pair.token0Price.toSignificant(6),
       price1: pair.token1Price.toSignificant(6),
     });
+
+    const amount1 = "1";
+    const reserve0 = pair.reserve0.toFixed();
+    const reserve1 = pair.reserve1.toFixed();
+    const amount2 = estimateLiquidToAdd(amount1, reserve0, reserve1);
+
+    const addLiquidParams = Router.addLiquidityParameters(
+      amount1.toString(),
+      amount2.toString(),
+      "0",
+      "0",
+      "0x1::aptos_coin::AptosCoin",
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
+      "9975"
+    );
+    console.log("Liquid params: ", addLiquidParams);
   } else {
     console.log("Pair does not exist on blockchain");
   }
 }
 
-main().catch(console.error);
+// main().catch(console.error);
 
 // // Initialize Aptos client
 // const config = new AptosConfig({
