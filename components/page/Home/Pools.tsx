@@ -24,12 +24,15 @@ import {
 } from "@/components/warpgate";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { SWAP_ADDRESS } from "warpgate-swap-sdk";
+import { useToast } from "@/hooks/use-toast";
 import { convertAmountFromHumanReadableToOnChain } from "@aptos-labs/ts-sdk";
+import { formatAddress } from "@/types/helper";
 
 export default function Pools() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { account, signAndSubmitTransaction } = useWallet();
+  const { toast } = useToast();
 
   const addLiquid = async () => {
     if (!account) {
@@ -42,9 +45,10 @@ export default function Pools() {
       "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
       "MAHA"
     );
+    console.log(params);
 
     if (!params) return;
-    const amount1 = convertAmountFromHumanReadableToOnChain(1, 8);
+    const amount1 = 1;
 
     const amount2 = estimateLiquidToAdd(
       `${amount1}`,
@@ -57,10 +61,8 @@ export default function Pools() {
       `${amount2}`,
       "0",
       "0",
-      "MAHA",
-      "MOVE",
-      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
       "0x1::aptos_coin::AptosCoin",
+      "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
       "9975"
     );
 
@@ -84,7 +86,11 @@ export default function Pools() {
         },
       });
 
-      txResult.success && console.log("Add liquid. hash: ", txResult.hash);
+      txResult.success &&
+        toast({
+          title: "Successfully added liquidity!",
+          description: `Hash: ${formatAddress(txResult.hash)}`,
+        });
     }
   };
 
@@ -123,7 +129,11 @@ export default function Pools() {
         },
       });
 
-      txResult.success && console.log("Remove liquid. hash: ", txResult.hash);
+      txResult.success &&
+        toast({
+          title: "Successfully removed liquidity!",
+          description: `Hash: ${formatAddress(txResult.hash)}`,
+        });
     }
   };
 
@@ -133,7 +143,7 @@ export default function Pools() {
     }
 
     const params = await getSwapParams(
-      "0.1",
+      "1",
       "0x1::aptos_coin::AptosCoin",
       "MOVE",
       "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
@@ -161,7 +171,11 @@ export default function Pools() {
         },
       });
 
-      txResult.success && console.log("Swap hash: ", txResult.hash);
+      txResult.success &&
+        toast({
+          title: "Successfully swapped!",
+          description: `Hash: ${formatAddress(txResult.hash)}`,
+        });
     }
   };
 

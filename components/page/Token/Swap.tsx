@@ -30,11 +30,7 @@ import {
   getSwapParams,
   PairState,
 } from "@/components/warpgate";
-import {
-  Account,
-  generateTransactionPayload,
-  generateTransactionPayloadWithABI,
-} from "@aptos-labs/ts-sdk";
+import { useToast } from "@/hooks/use-toast";
 
 interface TokenData {
   address: string;
@@ -55,6 +51,7 @@ export default function TokenSwap({ token }: SwapProps) {
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] = useState<TokenData | null>(null);
   const { account, connected, signAndSubmitTransaction } = useWallet();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (token && isTokenInfo(token)) {
@@ -84,6 +81,7 @@ export default function TokenSwap({ token }: SwapProps) {
     }
 
     const params = await getSwapParams(
+      "1",
       "0x1::aptos_coin::AptosCoin",
       "MOVE",
       "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
@@ -107,8 +105,18 @@ export default function TokenSwap({ token }: SwapProps) {
 
     if (response) {
       const client = aptosClient();
-      const txResult = await client.waitForTransaction(response.hash);
-      console.log("Swap hash: ", txResult);
+      const txResult = await client.waitForTransaction({
+        transactionHash: response.hash,
+        options: {
+          checkSuccess: true,
+        },
+      });
+
+      txResult.success &&
+        toast({
+          title: "Successfully swapped!",
+          description: `Hash: ${txResult.hash}`,
+        });
     }
   };
 

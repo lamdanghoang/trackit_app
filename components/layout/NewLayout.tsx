@@ -6,7 +6,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Toaster } from "@/components/ui/toaster";
 import { ChatBox } from "./Chatbox";
 import { useContext } from "react";
 import GlobalContext from "@/context/store";
@@ -69,6 +69,7 @@ const Layout = ({
             </SidebarInset>
           </main>
         </div>
+        <Toaster />
       </SidebarProvider>
     </RazorProvider>
   );
