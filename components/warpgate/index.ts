@@ -75,14 +75,12 @@ export async function getPair(
   }
 
   const reserves = await getPairReserves(tokenA, tokenB);
-  console.log(reserves);
 
   if (!reserves) {
     return [PairState.NOT_EXISTS, null];
   }
 
   const [token0, token1] = Pair.sortToken(tokenA, tokenB);
-  console.log(token0, " & ", token1);
 
   return [
     PairState.EXISTS,
@@ -156,7 +154,6 @@ export async function getPairParams(
 
   // Get pair
   const [pairState, pair] = await getPair(token, Move);
-  console.log(pairState, " & ", pair);
 
   if (pairState === PairState.EXISTS && pair) {
     return {

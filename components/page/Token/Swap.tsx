@@ -31,6 +31,7 @@ import {
   PairState,
 } from "@/components/warpgate";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 interface TokenData {
   address: string;
@@ -115,7 +116,14 @@ export default function TokenSwap({ token }: SwapProps) {
       txResult.success &&
         toast({
           title: "Successfully swapped!",
-          description: `Hash: ${txResult.hash}`,
+          description: (
+            <Link
+              target="_blank"
+              href={`https://explorer.movementnetwork.xyz/txn/${txResult.hash}?network=bardock+testnet`}
+            >
+              Hash: {txResult.hash}
+            </Link>
+          ),
         });
     }
   };

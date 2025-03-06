@@ -27,6 +27,7 @@ import { SWAP_ADDRESS } from "warpgate-swap-sdk";
 import { useToast } from "@/hooks/use-toast";
 import { convertAmountFromHumanReadableToOnChain } from "@aptos-labs/ts-sdk";
 import { formatAddress } from "@/types/helper";
+import Link from "next/link";
 
 export default function Pools() {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,6 @@ export default function Pools() {
       "0x18394ec9e2a191e2470612a57547624b12254c9fbb552acaff6750237491d644::MAHA::MAHA",
       "MAHA"
     );
-    console.log(params);
 
     if (!params) return;
     const amount1 = 1;
@@ -89,7 +89,14 @@ export default function Pools() {
       txResult.success &&
         toast({
           title: "Successfully added liquidity!",
-          description: `Hash: ${formatAddress(txResult.hash)}`,
+          description: (
+            <Link
+              target="_blank"
+              href={`https://explorer.movementnetwork.xyz/txn/${txResult.hash}?network=bardock+testnet`}
+            >
+              Hash: {txResult.hash}
+            </Link>
+          ),
         });
     }
   };
@@ -132,7 +139,14 @@ export default function Pools() {
       txResult.success &&
         toast({
           title: "Successfully removed liquidity!",
-          description: `Hash: ${formatAddress(txResult.hash)}`,
+          description: (
+            <Link
+              target="_blank"
+              href={`https://explorer.movementnetwork.xyz/txn/${txResult.hash}?network=bardock+testnet`}
+            >
+              Hash: {txResult.hash}
+            </Link>
+          ),
         });
     }
   };
@@ -151,7 +165,6 @@ export default function Pools() {
     );
 
     if (!params) return;
-    console.log(params);
 
     const response = await signAndSubmitTransaction({
       sender: account.address,
@@ -174,7 +187,14 @@ export default function Pools() {
       txResult.success &&
         toast({
           title: "Successfully swapped!",
-          description: `Hash: ${formatAddress(txResult.hash)}`,
+          description: (
+            <Link
+              target="_blank"
+              href={`https://explorer.movementnetwork.xyz/txn/${txResult.hash}?network=bardock+testnet`}
+            >
+              Hash: {txResult.hash}
+            </Link>
+          ),
         });
     }
   };
