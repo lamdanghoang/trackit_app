@@ -3,6 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Chart from "./CustomChart";
 import TxHistory from "./TxHistory";
 import Detail from "./Detail";
+import ChartWrapper from "./ChartWrapper";
 
 const main_tabs = ["Activity", "Traders", "Holders", "BC Owners"];
 
@@ -25,7 +26,7 @@ export default function Token() {
       <div className="space-y-4 min-w-0 transition-all duration-100 ease-in-out">
         {/* Chart Area */}
         <div className="bg rounded-lg">
-          <Chart />
+          <ChartWrapper />
         </div>
 
         {/* Tabs */}

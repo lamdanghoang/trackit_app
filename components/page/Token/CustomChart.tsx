@@ -137,10 +137,23 @@ const createTooltip = (): HTMLDivElement => {
 };
 
 // Generate initial data
-const { candlestickData: candlestickSeriesData, volumeData: volumeSeriesData } =
-  generateData(new Date(2023, 0, 1), 100);
+const {
+  candlestickData: defaultCandlestickData,
+  volumeData: defaultVolumeData,
+} = generateData(new Date(2023, 0, 1), 100);
 
-export default function Chart(): JSX.Element {
+// Props interface
+interface ChartProps {
+  initialCandlestickData?: ChartData[];
+  initialVolumeData?: HistogramData[];
+  isLive?: boolean;
+}
+
+export default function Chart({
+  initialCandlestickData = defaultCandlestickData,
+  initialVolumeData = defaultVolumeData,
+  isLive = false,
+}: ChartProps): JSX.Element {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -164,6 +177,7 @@ export default function Chart(): JSX.Element {
     }
   }, []);
 
+  // Effect for handling resize
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       handleResize();
@@ -178,6 +192,25 @@ export default function Chart(): JSX.Element {
     };
   }, [handleResize]);
 
+  // Effect for updating data when initialCandlestickData or initialVolumeData change
+  useEffect(() => {
+    if (!candlestickSeriesRef.current || !volumeSeriesRef.current) return;
+
+    if (initialCandlestickData && initialCandlestickData.length > 0) {
+      candlestickSeriesRef.current.setData(initialCandlestickData);
+    }
+
+    if (initialVolumeData && initialVolumeData.length > 0) {
+      volumeSeriesRef.current.setData(initialVolumeData);
+    }
+
+    // Fit content to show all data
+    if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [initialCandlestickData, initialVolumeData]);
+
+  // Main effect for chart initialization
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -216,12 +249,52 @@ export default function Chart(): JSX.Element {
       },
     });
 
-    candlestickSeriesRef.current.setData(candlestickSeriesData);
+    // Set initial candlestick data
+    candlestickSeriesRef.current.setData(initialCandlestickData);
+
+    // Add live indicator if applicable
+    if (isLive) {
+      const liveIndicator = document.createElement("div");
+      liveIndicator.style.position = "absolute";
+      liveIndicator.style.top = "-10px";
+      liveIndicator.style.right = "10px";
+      liveIndicator.style.zIndex = "10";
+      liveIndicator.style.color = TOOLTIP_CONFIG.COLORS.GREEN;
+      liveIndicator.style.fontSize = "14px";
+      liveIndicator.style.fontWeight = "bold";
+      liveIndicator.style.display = "flex";
+      liveIndicator.style.alignItems = "center";
+      liveIndicator.style.gap = "5px";
+
+      // Add pulse animation for live indicator
+      const pulseDiv = document.createElement("div");
+      pulseDiv.style.width = "8px";
+      pulseDiv.style.height = "8px";
+      pulseDiv.style.borderRadius = "50%";
+      pulseDiv.style.backgroundColor = TOOLTIP_CONFIG.COLORS.GREEN;
+      pulseDiv.style.animation = "pulse 1.5s infinite";
+
+      // Add animation keyframes
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.4; }
+          100% { opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      liveIndicator.appendChild(pulseDiv);
+      liveIndicator.appendChild(document.createTextNode("LIVE"));
+
+      chartContainerRef.current.appendChild(liveIndicator);
+    }
 
     // determining the dates for the 'buy' and 'sell' markers added below.
     const datesForMarkers = [
-      candlestickSeriesData[candlestickSeriesData.length - 39],
-      candlestickSeriesData[candlestickSeriesData.length - 19],
+      defaultCandlestickData[defaultCandlestickData.length - 39],
+      defaultCandlestickData[defaultCandlestickData.length - 19],
     ];
     let indexOfMinPrice = 0;
     for (let i = 1; i < datesForMarkers.length; i++) {
@@ -231,7 +304,7 @@ export default function Chart(): JSX.Element {
     }
     const markers = [
       {
-        time: candlestickSeriesData[candlestickSeriesData.length - 48].time,
+        time: defaultCandlestickData[defaultCandlestickData.length - 48].time,
         position: "aboveBar" as SeriesMarkerPosition,
         color: "#f68410",
         shape: "circle" as SeriesMarkerShape,
@@ -275,7 +348,8 @@ export default function Chart(): JSX.Element {
       },
     });
 
-    volumeSeriesRef.current.setData(volumeSeriesData);
+    // Set initial volume data
+    volumeSeriesRef.current.setData(initialVolumeData);
     chartRef.current.timeScale().fitContent();
 
     // Create tooltip
@@ -349,7 +423,7 @@ export default function Chart(): JSX.Element {
       }
       tooltipRef.current?.remove();
     };
-  }, [selectedToken, handleResize]);
+  }, [selectedToken, handleResize, isLive]);
 
   return (
     <div className="w-full h-[500px] p-4 rounded-lg shadow-md">
