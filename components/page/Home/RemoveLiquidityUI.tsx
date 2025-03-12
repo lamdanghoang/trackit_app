@@ -29,7 +29,7 @@ const liquidityPositions = [
     },
     totalValue: 100, // in USD
     share: "0.02%",
-    icon: "/placeholder.svg?height=32&width=32",
+    icon: "",
   },
 ];
 

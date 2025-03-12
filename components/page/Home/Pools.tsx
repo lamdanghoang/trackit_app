@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LoadingRow } from "./CryptoTable";
 import {
   aptosClient,
@@ -26,17 +26,23 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { SWAP_ADDRESS } from "warpgate-swap-sdk";
 import { useToast } from "@/hooks/use-toast";
 import { convertAmountFromHumanReadableToOnChain } from "@aptos-labs/ts-sdk";
-import { formatAddress } from "@/types/helper";
+import { formatAddress, formatVolume } from "@/types/helper";
 import Link from "next/link";
 import OperationDialog from "./OperationDialog";
+import GlobalContext from "@/context/store";
+import axios from "axios";
+import { Pool } from "@/types/interface";
 
 export default function Pools() {
+  const { selectedChain } = useContext(GlobalContext);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { account, signAndSubmitTransaction } = useWallet();
   const [showDialog, setShowDialog] = useState(false);
   const [selectedTab, setSelectedTab] = useState("swap");
   const { toast } = useToast();
+  const [poolData, setPoolData] = useState<Pool[]>([]);
+  const limitPool = 3;
 
   // const addLiquid = async () => {
   //   if (!account) {
@@ -217,6 +223,29 @@ export default function Pools() {
     setSelectedTab("remove");
   };
 
+  useEffect(() => {
+    const fetchPools = async () => {
+      const url = `https://api.trackit-app.xyz/v1/yield/pools?chain=${selectedChain}&limit=${limitPool}`;
+      try {
+        const response = await axios.get(url);
+
+        if (response.status === 200) {
+          if (response.data) {
+            setPoolData(() => [...response.data]);
+          } else {
+            console.log("API response data is empty.");
+          }
+        } else {
+          console.log("Failed to fetch data: ", response.status);
+        }
+      } catch (error) {
+        console.log("Error fetching pools:", error);
+      }
+    };
+
+    fetchPools();
+  }, [selectedChain]);
+
   return (
     <>
       <div className="md:mx-auto flex-1 max-w-5xl overflow-hidden">
@@ -254,50 +283,102 @@ export default function Pools() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {[...Array(1)].map((_, index) => (
-                    <TableRow
-                      key={index}
-                      className="hover:bg-blue-900 transition-colors duration-150 group"
-                    >
-                      <TableCell className="sticky left-0 z-20 bg-[#0e203f] group-hover:bg-blue-900 transition-colors duration-150">
-                        MOVE/ETH
-                      </TableCell>
-                      <TableCell>-</TableCell>
-                      <TableCell>-</TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
-                          onClick={onOpenAddLiquidity}
-                        >
-                          <PlusIcon />
-                          <span className="text-[15px] font-medium">Add</span>
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
-                          onClick={onOpenRemoveLiquidity}
-                        >
-                          <MinusIcon />
-                          <span className="text-[15px] font-medium">
-                            Remove
-                          </span>
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
-                          onClick={onOpenSwap}
-                        >
-                          <ArrowRightLeftIcon />
-                          <span className="text-[15px] font-medium">Swap</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {poolData.length === 0 &&
+                    [...Array(1)].map((_, index) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-blue-900 transition-colors duration-150 group"
+                      >
+                        <TableCell className="sticky left-0 z-20 bg-[#0e203f] group-hover:bg-blue-900 transition-colors duration-150">
+                          MOVE/ETH
+                        </TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenAddLiquidity}
+                          >
+                            <PlusIcon />
+                            <span className="text-[15px] font-medium">Add</span>
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenRemoveLiquidity}
+                          >
+                            <MinusIcon />
+                            <span className="text-[15px] font-medium">
+                              Remove
+                            </span>
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenSwap}
+                          >
+                            <ArrowRightLeftIcon />
+                            <span className="text-[15px] font-medium">
+                              Swap
+                            </span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  {poolData.length > 0 &&
+                    poolData.map((item, index) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-blue-900 transition-colors duration-150 group"
+                      >
+                        <TableCell className="sticky left-0 z-20 bg-[#0e203f] group-hover:bg-blue-900 transition-colors duration-150">
+                          {item.pool?.symbol || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          ${formatVolume(item.pool?.tvl) || "-"}
+                        </TableCell>
+                        <TableCell>-</TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenAddLiquidity}
+                          >
+                            <PlusIcon />
+                            <span className="text-[15px] font-medium">Add</span>
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenRemoveLiquidity}
+                          >
+                            <MinusIcon />
+                            <span className="text-[15px] font-medium">
+                              Remove
+                            </span>
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            className="px-5 flex items-center bg-transparent hover:bg-bluesky text-[#8899A8] hover:text-gray-50 border border-bluesky"
+                            onClick={onOpenSwap}
+                          >
+                            <ArrowRightLeftIcon />
+                            <span className="text-[15px] font-medium">
+                              Swap
+                            </span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </>
             )}
