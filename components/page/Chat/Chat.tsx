@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import MarkdownDisplay from "./MarkdownDisplay";
 
 interface Message {
   id: number;
@@ -55,7 +56,7 @@ export default function ChatPage() {
   };
 
   const fetchBotMessage = async (userInput: string) => {
-    const url = "https://api.trackit-app.xyz/v1/agent/chat";
+    const url = `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/agent/chat`;
     const value = {
       content: userInput,
     };
@@ -119,7 +120,15 @@ export default function ChatPage() {
                       : "bg-gray-200 text-gray-800 rounded-bl-none"
                   }`}
                 >
-                  {message.text}
+                  {message.sender !== "user" && message.text ? (
+                    <MarkdownDisplay
+                      content={message.text
+                        .replace(/(\d+\.\s\*\*[^:]*\*\*:)/g, "## $1")
+                        .replace(/\n   - \*\*/g, "\n- **")}
+                    />
+                  ) : (
+                    message.text
+                  )}
                 </div>
                 {message.sender === "user" && (
                   <Avatar className="ml-2 text-gray-800">
