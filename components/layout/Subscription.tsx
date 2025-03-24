@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Mail, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,12 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  FormWrapper,
+  FormLabel,
+  FormInputWrapper,
+  FormInput,
+} from "@/components/ui/form";
 
 interface SubscriptionDialogProps {
   open: boolean;
@@ -101,43 +107,46 @@ export default function SubscriptionDialog({
                       market alerts.
                     </DialogDescription>
 
-                    <div className="space-y-3 sm:space-y-4">
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        className="w-full h-10 sm:h-12 px-4 text-gray-900 rounded-md"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleSubmit();
-                          }
-                        }}
-                      />
-                      <Input
-                        type="text"
-                        placeholder="Move Address"
-                        className="w-full h-10 sm:h-12 px-4 text-gray-900 rounded-md"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleSubmit();
-                          }
-                        }}
-                      />
-                      <Button
-                        className="w-full h-10 sm:h-12 text-base sm:text-lg font-medium bg-blue-500 hover:bg-blue-600 rounded-md transition-colors"
-                        onClick={handleSubmit}
-                        disabled={!email || !address || isLoading}
-                      >
-                        {isLoading ? "SENDING..." : "SEND ME UPDATES"}
-                      </Button>
-                      <p className="text-xs text-gray-400 mt-2 px-2">
-                        By signing up, you agree to receive updates about new
-                        token listings.
-                      </p>
-                    </div>
+                    <FormWrapper className="max-w-md">
+                      <div className="space-y-3 sm:space-y-4">
+                        <FormInputWrapper>
+                          <FormInput
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSubmit();
+                            }}
+                          />
+                        </FormInputWrapper>
+
+                        <FormInputWrapper>
+                          <FormInput
+                            type="text"
+                            placeholder="Move Address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSubmit();
+                            }}
+                          />
+                        </FormInputWrapper>
+
+                        <Button
+                          className="w-full h-10 sm:h-12 text-base sm:text-lg font-medium bg-blue-500 hover:bg-blue-600 rounded-md transition-colors"
+                          onClick={handleSubmit}
+                          disabled={!email || !address || isLoading}
+                        >
+                          {isLoading ? "SENDING..." : "SEND ME UPDATES"}
+                        </Button>
+
+                        <p className="text-xs text-gray-400 mt-2 px-2">
+                          By signing up, you agree to receive updates about new
+                          token listings.
+                        </p>
+                      </div>
+                    </FormWrapper>
                   </>
                 ) : (
                   <div className="py-6 sm:py-8">

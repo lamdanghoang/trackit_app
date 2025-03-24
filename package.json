@@ -50,6 +50,7 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "warpgate-fun-sdk": "^1.0.0",
     "warpgate-swap-sdk": "^1.0.3",
     "zod": "^3.23.8"
   },

@@ -2,6 +2,7 @@ import {
   PricePredictionData,
   TokenInfo,
   TokenInfoSui,
+  TokenMoveFunInfo,
 } from "@/types/interface";
 
 export const formatVolume = (volume: number): string => {
@@ -70,7 +71,13 @@ export type { PriceFormatterOptions };
 export { formatTokenPrice };
 
 export function isTokenInfo(
-  token: TokenInfo | TokenInfoSui
+  token: TokenInfo | TokenInfoSui | TokenMoveFunInfo
 ): token is TokenInfo {
   return "tickerSymbol" in token; // Check for a property unique to TokenInfo
+}
+
+export function isMovefunTokenInfo(
+  token: TokenInfo | TokenInfoSui | TokenMoveFunInfo
+): token is TokenMoveFunInfo {
+  return "address" in token; // Check for a property unique to TokenInfo
 }
