@@ -2,23 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import {
-  Link as Chain,
-  Scan,
-  PanelLeftIcon,
-  PanelLeft,
-  Settings2,
   Menu,
-  ListCheckIcon,
-  ChevronLeft,
-  ChevronRight,
-  PieChart,
-  Frame,
-  GalleryVerticalEnd,
-  AudioWaveform,
-  Command,
-  ComponentIcon,
-  CoinsIcon,
-  ScanSearchIcon,
   SlidersVerticalIcon,
   LogOutIcon,
   FlameIcon,
@@ -28,22 +12,16 @@ import {
   FileChartColumnIncreasingIcon,
   LogInIcon,
   NewspaperIcon,
-  SquareStackIcon,
   SendIcon,
-  RocketIcon,
   ViewIcon,
   ChartSplineIcon,
   FishSymbolIcon,
-  HandCoinsIcon,
   ChartCandlestickIcon,
-  RadarIcon,
   MessageSquareMoreIcon,
   TrophyIcon,
   CpuIcon,
   MessageCircle,
 } from "lucide-react";
-import { NavMain } from "@/components/layout/Sidebar/NavMain";
-import { NavUser } from "@/components/layout/Sidebar/nav-user";
 import {
   Sheet,
   SheetContent,
@@ -52,16 +30,13 @@ import {
 } from "@/components/ui/sheet";
 import {
   SidebarMenuButton,
-  SidebarMenuSubButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuItem,
   SidebarMenu,
   SidebarGroup,
   SidebarSeparator,
   SidebarHeader,
 } from "../../ui/sidebar";
-import { VisuallyHidden, Root } from "@radix-ui/react-visually-hidden";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import Link from "next/link";
 import GlobalContext from "@/context/store";
@@ -69,7 +44,6 @@ import { useState } from "react";
 import { useContext } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { WalletSelector } from "@/components/wallet/WalletConnect";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import SubscriptionDialog from "../Subscription";
 

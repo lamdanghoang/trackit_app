@@ -1,23 +1,15 @@
 "use client";
 import { AppSidebar } from "@/components/layout/Sidebar/AppSidebar";
 import SearchForm from "./SearchForm";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import { ChatBox } from "./Chatbox";
 import { useContext, useState } from "react";
 import GlobalContext from "@/context/store";
 import { BellIcon, BoltIcon, UserCircleIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import SelectChain from "./SelectChain";
 import { WalletSelector } from "../wallet/WalletConnect";
-import {
-  ConnectButton,
-  WalletProvider as RazorProvider,
-} from "@razorlabs/razorkit";
+import { WalletProvider as RazorProvider } from "@razorlabs/razorkit";
 
 const Layout = ({
   children,
