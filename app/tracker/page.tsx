@@ -1,3 +1,5 @@
+"use client";
+
 import Tracker from "@/components/page/Tracker/index";
 import GlobalContext from "@/context/store";
 import { useContext, useEffect } from "react";
