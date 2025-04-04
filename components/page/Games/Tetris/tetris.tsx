@@ -1,4 +1,6 @@
 "use client";
+import { WalletConnectButton } from "@/components/wallet/WalletConnect";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 
 // Define types for our tetromino pieces
@@ -134,6 +136,7 @@ const Tetris: React.FC = () => {
   const [tickRate, setTickRate] = useState(TICK_RATE_MS);
   const [nextTetromino, setNextTetromino] = useState<Tetromino | null>(null);
   const [linesCleared, setLinesCleared] = useState(0);
+  const { account, connected } = useWallet();
 
   // Initialize game on client-side only
   useEffect(() => {
@@ -144,9 +147,9 @@ const Tetris: React.FC = () => {
     setCurrentTetromino(firstTetromino);
     setNextTetromino(secondTetromino);
     setPosition(getInitialPosition(firstTetromino.type));
-    setInitialized(true);
+    connected && setInitialized(true);
     isMounted.current = true;
-  }, []);
+  }, [connected]);
 
   // Check if the current position is valid
   const isPositionValid = useCallback(
@@ -516,12 +519,67 @@ const Tetris: React.FC = () => {
     return grid;
   }, [nextTetromino, initialized]);
 
+  // Save score when game ends
+  useEffect(() => {
+    const saveTetrisScore = async (address: string, score: number) => {
+      const url = `${process.env.NEXT_PUBLIC_TRACKIT_API_HOST}/game/save`;
+      const content = {
+        email: "test@trackit.com",
+        move_wallet: address,
+        score: score,
+        nft_metadata: {
+          name: "TrackIt Champion",
+          description: "Awarded for high score in TrackIt game",
+          attributes: {
+            score: score,
+            date: "2025-04-03",
+          },
+          image: "https://example.com/nft_image.png",
+        },
+      };
+
+      console.log(content);
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(content),
+        });
+
+        if (response.ok) {
+          console.log("Score is saved successfully!");
+        } else {
+          console.log("Failed to save score. Try again!");
+        }
+      } catch (error) {
+        console.log("Failed to save score. Try again!");
+      }
+    };
+    if (gameOver && account) {
+      saveTetrisScore(account?.address, score);
+    }
+  }, [gameOver]);
+
   // Show loading state until client-side initialization is complete
-  if (!initialized) {
+  if (!initialized && connected) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg text-white rounded-lg">
         <h1 className="text-4xl font-bold mb-4">Tetris</h1>
         <p>Loading game...</p>
+      </div>
+    );
+  }
+
+  if (!connected) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg text-white rounded-lg">
+        <h1 className="text-4xl font-bold mb-4 text-gray-200">
+          Connect your wallet first!
+        </h1>
+        <WalletConnectButton />
       </div>
     );
   }

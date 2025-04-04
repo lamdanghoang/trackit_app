@@ -1,6 +1,7 @@
-import { GamepadIcon } from "lucide-react";
+import { GamepadIcon, ScrollTextIcon } from "lucide-react";
 import GameCard from "./GameCard";
 import { url } from "inspector";
+import Leaderboard from "./Leaderboard";
 
 export default function PopularGames() {
   const games = [
@@ -18,7 +19,7 @@ export default function PopularGames() {
   ];
 
   return (
-    <div className="text-gray-300">
+    <div className="text-gray-300 space-y-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <GamepadIcon />
@@ -39,6 +40,14 @@ export default function PopularGames() {
             />
           ))}
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <ScrollTextIcon />
+          <h2 className="text-lg font-bold tracking-wide">Leaderboard</h2>
+        </div>
+
+        <Leaderboard />
       </div>
     </div>
   );
