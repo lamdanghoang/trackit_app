@@ -126,7 +126,7 @@ export default function Leaderboard() {
                   <div className="flex items-center gap-3">
                     <Avatar>
                       <AvatarImage src="/logo.png" alt="avatar" />
-                      <AvatarFallback>"Avatar"</AvatarFallback>
+                      <AvatarFallback>Avatar</AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="hidden md:block font-medium">
