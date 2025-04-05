@@ -65,7 +65,7 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto bg-transparent border border-bluesky text-gray-50">
+    <Card className="w-full max-w-4xl mx-auto bg-transparent border border-bluesky text-gray-50 p-0">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
@@ -90,7 +90,7 @@ export default function Leaderboard() {
           </DropdownMenu> */}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
