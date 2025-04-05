@@ -558,25 +558,25 @@ const Tetris: React.FC = () => {
         },
       };
 
-      console.log(content);
+      // console.log(content);
 
-      // try {
-      //   const response = await fetch(url, {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(content),
-      //   });
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(content),
+        });
 
-      //   if (response.ok) {
-      //     console.log("Score is saved successfully!");
-      //   } else {
-      //     console.log("Failed to save score. Try again!");
-      //   }
-      // } catch (error) {
-      //   console.log("Failed to save score. Try again!");
-      // }
+        if (response.ok) {
+          console.log("Score is saved successfully!");
+        } else {
+          console.log("Failed to save score. Try again!");
+        }
+      } catch (error) {
+        console.log("Failed to save score. Try again!");
+      }
     };
     if (gameOver) {
       if (currentAddress) {
