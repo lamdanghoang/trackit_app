@@ -135,9 +135,9 @@ export default function Leaderboard() {
                       <div className="md:hidden font-medium">
                         {formatAddress(player.move_wallet)}
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {player.email}
-                      </div>
+                      {/* <div className="text-sm text-muted-foreground">
+                        // {player.email}
+                      </div> */}
                     </div>
                   </div>
                 </TableCell>
