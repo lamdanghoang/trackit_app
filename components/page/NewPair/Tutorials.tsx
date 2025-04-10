@@ -7,8 +7,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function Tutorials() {
