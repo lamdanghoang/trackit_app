@@ -69,7 +69,7 @@ export default function TokenSaleBanner() {
                 TrackIt Token: Coming soon!
               </h2>
               <p className="text-white">
-                Don't miss it! Trackit Token is on its way!
+                Don&apos;t miss it! Trackit Token is on its way!
               </p>
             </div>
 
