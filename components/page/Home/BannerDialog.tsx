@@ -25,7 +25,7 @@ interface DialogProps {
 }
 
 export default function BannerDialog({ value: timeLeft }: DialogProps) {
-  const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(true);
 
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
